@@ -11,10 +11,13 @@
 </head>
 <body>
     <div id="app">
-        {{msg}}
+        {{name}}
+        <button v-click="currentPath = /about"> klik </button>
     </div>
     <script>
-        var app = new Client.App("#app");
+        if (!window.myApp) {
+            window.myApp = new Client.App("#app",prompt("Enter App name"));
+        }
     </script>
 </body>
 </html>
