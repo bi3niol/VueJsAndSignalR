@@ -3,21 +3,25 @@
 <head>
     <meta charset="utf-8" />
     <title></title>
-    <script src="Scripts/jquery-1.6.4.min.js"></script>
+    <script src="Scripts/jquery-3.0.0.js"></script>
+    <script src="Scripts/bootstrap.bundle.min.js"></script>
     <script src="Scripts/jquery.signalR-2.3.0.js"></script>
     <script src="Scripts/vue.js"></script>
-    <script src="Content/App.js"></script>
     <script src="/signalr/hubs"></script>
+    <script src="Client/App.js"></script>
+
+    <link href="Content/bootstrap.css" rel="stylesheet" />
 </head>
 <body>
     <div id="app">
         {{name}}
-        <button v-click="currentPath = /about"> klik </button>
     </div>
     <script>
-        if (!window.myApp) {
-            window.myApp = new Client.App("#app",prompt("Enter App name"));
-        }
+        var myVue = null;
+        new Client().done(function (vue) {
+            myVue = vue;
+        });
     </script>
+
 </body>
 </html>
