@@ -1,0 +1,23 @@
+﻿<template id="chat-site">
+    <div>
+        <ul class="nav nav-tabs" role="tablist">
+            <li class="nav-item" v-for="window in windows">
+                <a :href="window.id"
+                   v-on:click="tabClick(window.id)"
+                   data-toggle="tab"
+                   class="nav-link"
+                   :class="{'active':window.isActive}">
+                    {{window.user.NickName}}
+                </a>
+            </li>
+        </ul>
+        <div class="tab-content">
+            <div class="tab-pane container fade"
+                 :id="window.id"
+                 :class="{'active show': window.isActive}"
+                 v-for="window in windows">
+                <chat-box :window="window"></chat-box>
+            </div>
+        </div>
+    </div>
+</template>

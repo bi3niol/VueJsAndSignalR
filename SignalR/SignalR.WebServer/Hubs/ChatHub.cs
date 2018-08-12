@@ -21,6 +21,7 @@ namespace SignalR.WebServer.Hubs
 
         public UserConnection[] Join(dynamic userData)
         {
+
             var connectedUsers = ConnectedUsers.Values.ToArray();
             try
             {

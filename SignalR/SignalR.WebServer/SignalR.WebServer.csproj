@@ -36,6 +36,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -119,6 +120,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Client\App.js" />
+    <Content Include="Client\Components.js" />
+    <Content Include="Client\Templates\App.html" />
+    <Content Include="Client\Templates\ChatBox.html" />
+    <Content Include="Client\Templates\ChatSite.html" />
+    <Content Include="Client\Templates\Message.html" />
     <Content Include="Content\bootstrap-grid.css" />
     <Content Include="Content\bootstrap-grid.min.css" />
     <Content Include="Content\bootstrap-reboot.css" />
