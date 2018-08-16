@@ -1,0 +1,23 @@
+﻿<template id="profile-manager">
+    <div>
+        <div class="btn btn-info" data-toggle="modal" data-target="#edit-profile-modal">Edytuj Dane</div>
+        <div class="modal fade" role="dialog" id="edit-profile-modal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4>Wprowadź informacje!</h4>
+                    </div>
+                    <div class="modal-body">
+                        <label for="name">Nick</label>
+                        <input name="name" id="name" v-model="user.nickName" />
+                        <label for="age">Wiek</label>
+                        <input type="number" v-model="user.age" />
+                    </div>
+                    <div class="modal-footer">
+                        <div class="btn btn-success w-100" v-on:click="update">Aktualizuj</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>

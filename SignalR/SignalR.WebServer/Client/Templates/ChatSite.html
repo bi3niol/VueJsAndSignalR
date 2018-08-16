@@ -2,21 +2,21 @@
     <div>
         <ul class="nav nav-tabs" role="tablist">
             <li class="nav-item" v-for="window in windows">
-                <a :href="window.id"
-                   v-on:click="tabClick(window.id)"
+                <a :href="'#'+window.elementId"
+                   v-on:click="tabClick(window.clientId)"
                    data-toggle="tab"
                    class="nav-link"
                    :class="{'active':window.isActive}">
-                    {{window.user.NickName}}
+                    {{window.onlineUser.nickName}}
                 </a>
             </li>
         </ul>
         <div class="tab-content">
             <div class="tab-pane container fade"
-                 :id="window.id"
+                 :id="window.elementId"
                  :class="{'active show': window.isActive}"
                  v-for="window in windows">
-                <chat-box :window="window"></chat-box>
+                <chat-box :server="server" :window="window"></chat-box>
             </div>
         </div>
     </div>

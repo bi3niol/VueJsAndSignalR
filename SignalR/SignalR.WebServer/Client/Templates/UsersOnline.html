@@ -1,0 +1,8 @@
+﻿<template id="users-online">
+    <div>
+        <div>Użytkowników online : <b>{{count}}</b></div>
+        <ul class="list-group">
+            <li is="online-user" v-on:openwindow="$emit('openwindow',$event)" :user="user" v-for="user in users"></li>
+        </ul>
+    </div>
+</template>

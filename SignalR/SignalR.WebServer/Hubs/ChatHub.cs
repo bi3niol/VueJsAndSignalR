@@ -18,14 +18,38 @@ namespace SignalR.WebServer.Hubs
         {
             Clients.All.hello();
         }
+        public void Send(string to, string content)
+        {
+            Clients.Others.reciveMessage(Context.ConnectionId, to, content);
+        }
 
-        public UserConnection[] Join(dynamic userData)
+        public UserConnection Update(UserConnection userData)
+        {
+            UserConnection user = null;
+
+            if (ConnectedUsers.TryGetValue(Context.ConnectionId, out user))
+            {
+                ConnectedUsers.TryUpdate(Context.ConnectionId, new UserConnection()
+                {
+                    Age = userData.Age,
+                    Id = Context.ConnectionId,
+                    NickName = userData.NickName
+                }, user);
+
+                ConnectedUsers.TryGetValue(Context.ConnectionId, out user);
+                Clients.Others.userUpdated(user);
+                return user;
+            }
+            return user;
+        }
+
+        public UserConnection[] Join(UserConnection userData)
         {
 
             var connectedUsers = ConnectedUsers.Values.ToArray();
             try
             {
-                userData.userId = Context.ConnectionId;
+                userData.Id = Context.ConnectionId;
                 var connection = new UserConnection()
                 {
                     Id = Context.ConnectionId,
@@ -45,6 +69,7 @@ namespace SignalR.WebServer.Hubs
         public void Leave()
         {
             ConnectedUsers.TryRemove(Context.ConnectionId, out var r);
+            Clients.Others.userLeft(Context.ConnectionId);
         }
     }
 }
