@@ -1,8 +1,22 @@
 ﻿/// <reference path="models.js" />
+
 Vue.component("client-message", {
     template: "#message",
     props: {
         message: Models.Message
+    },
+
+    computed: {
+        messageType: function () {
+            return this.message.isMyMessage ? "my-message" : "other-message";
+        },
+        classes: function() {
+            var content = this.message.isMyMessage ? "my-message" : "other-message";
+            return {
+                box: 'message-box',
+                content: content
+            }
+        }
     }
 });
 
@@ -36,7 +50,7 @@ Vue.component("chat-box", {
     mounted() {
         var self = this;
         this.window.addOnMessegeRecived(function (msg) {
-            self.$forceUpdate();
+            // self.$forceUpdate();
         });
     }
 });

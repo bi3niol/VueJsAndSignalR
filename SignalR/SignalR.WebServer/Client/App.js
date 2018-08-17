@@ -21,6 +21,11 @@ function Client(myUser) {
             },
             template: "#App-tmp",
             methods: {
+                closeWindow: function(id){
+                    this.openedWindows = this.openedWindows.where(function (w) {
+                        return w.clientId != id;
+                    }); 
+                },
                 openWindow: function (user) {
                     console.log(user);
                     var win = getOpenedWindowByUserId(user.id);

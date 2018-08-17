@@ -123,6 +123,7 @@
     <Content Include="Client\Components.js" />
     <Content Include="Client\LinqJS.js" />
     <Content Include="Client\Models.js" />
+    <Content Include="Client\Styles\Styles.css" />
     <Content Include="Client\Templates\App.html" />
     <Content Include="Client\Templates\ChatBox.html" />
     <Content Include="Client\Templates\ChatSite.html" />
@@ -173,6 +174,7 @@
     <Content Include="Content\fonts\glyphicons-halflings-regular.ttf" />
     <Content Include="Content\fonts\glyphicons-halflings-regular.woff" />
     <Content Include="Content\fonts\glyphicons-halflings-regular.woff2" />
+    <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
     <None Include="Scripts\jquery-3.3.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.3.1.js" />
     <Content Include="Scripts\jquery-3.3.1.min.js" />

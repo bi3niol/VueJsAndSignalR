@@ -4,6 +4,7 @@
             <li class="nav-item" v-for="window in windows">
                 <a :href="'#'+window.elementId"
                    v-on:click="tabClick(window.clientId)"
+                   v-on:dblclick="$emit('tabdblclick',window.clientId)"
                    data-toggle="tab"
                    class="nav-link"
                    :class="{'active':window.isActive}">
@@ -12,9 +13,9 @@
             </li>
         </ul>
         <div class="tab-content">
-            <div class="tab-pane container fade"
+            <div class="tab-pane"
                  :id="window.elementId"
-                 :class="{'active show': window.isActive}"
+                 :class="{'active show': window.isActive, 'fade':!window.isActive}"
                  v-for="window in windows">
                 <chat-box :server="server" :window="window"></chat-box>
             </div>

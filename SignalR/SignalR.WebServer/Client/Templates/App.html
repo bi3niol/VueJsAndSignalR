@@ -12,27 +12,29 @@
     <div>
         <!--<navigation></navigation>-->
         <nav class="navbar navbar-inverse">
-            <div class="container-fluid">
-                <div class="navbar-header">
-                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </button>
-                    <a class="navbar-brand" href="#">{{loggedUser.nickName}}</a>
-                </div>
-                <div class="collapse navbar-collapse" id="myNavbar">
-                    <ul class="nav navbar-nav">
-                        <li class="active"><a href="#">Home</a></li>
-                        <li><a href="#">About</a></li>
-                        <li><a href="#">Projects</a></li>
-                        <li><a href="#">Contact</a></li>
-                    </ul>
-                    <ul class="nav navbar-nav navbar-right">
-                        <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
-                    </ul>
-                </div>
-            </div>
+            <a class="navbar-brand" href="#">{{loggedUser.nickName}}</a>
+
+            <!--<div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">{{loggedUser.nickName}}</a>
+        </div>
+        <div class="collapse navbar-collapse" id="myNavbar">
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="#">Home</a></li>
+                <li><a href="#">About</a></li>
+                <li><a href="#">Projects</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+            </ul>
+        </div>
+    </div>-->
         </nav>
 
         <div class="container-fluid text-center">
@@ -41,21 +43,18 @@
                     <users-online :users="usersOnline" v-on:openwindow="openWindow($event)"></users-online>
                 </div>
                 <div class="col-sm-8 text-left">
-                    <chat-site :server="hubServer" :windows="openedWindows"></chat-site>
+                    <chat-site v-on:tabdblclick="closeWindow($event)" :server="hubServer" :windows="openedWindows"></chat-site>
                 </div>
                 <div class="col-sm-2 sidenav">
                     <div class="jumbotron">
                         <profile-manager :user="loggedUser" :server="hubServer"></profile-manager>
-                    </div>
-                    <div class="jumbotron">
-                        <p>ADS</p>
                     </div>
                 </div>
             </div>
         </div>
 
         <footer class="container-fluid text-center">
-            <p>Footer Text</p>
+            <p>ChatexXx</p>
         </footer>
     </div>
 </template>

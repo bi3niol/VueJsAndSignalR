@@ -1,13 +1,8 @@
 ﻿<template id="chat-box">
-    <div class="chat-border">
-        <div v-for="msg in window.messages">
-            {{msg.content}}
+    <div>
+        <div>
+            <client-message :message="msg" v-for="msg in window.messages"></client-message>
         </div>
         <message-input v-on:sentmessage="sentMessage($event)"></message-input>
     </div>
 </template>
-<style>
-    .chat-border{
-        border: 0 2px 2px 2px;
-    }
-</style>

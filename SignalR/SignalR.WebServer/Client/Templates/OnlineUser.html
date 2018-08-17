@@ -1,6 +1,6 @@
 ﻿<template id="online-user">
     <li v-on:dblclick="$emit('openwindow',user)" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
         {{user.nickName}}
-        <span class="badge badge-primary badge-pill">o</span>
+        <span class="badge badge-primary badge-pill">{{user.age}}</span>
     </li>
 </template>

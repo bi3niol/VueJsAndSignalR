@@ -33,10 +33,10 @@ Models.Window = function (user, loggedUser) {
         if (message.fromId != self.clientId && message.toId != self.clientId) {
             return;
         }
+        message.isMyMessage = (self.clientId!=message.fromId);
         self.messages.push(message);
         riseMessageRecived(message);
     }
-
 }
 
 
@@ -73,6 +73,7 @@ const Defaults = {
 }
 
 Models.Message = function (fromId, toId, content) {
+    this.isMyMessage = undefined;
     this.fromId = fromId;
     this.toId = toId;
     this.content = content;
