@@ -33,10 +33,21 @@ Models.Window = function (user, loggedUser) {
         if (message.fromId != self.clientId && message.toId != self.clientId) {
             return;
         }
-        message.isMyMessage = (self.clientId!=message.fromId);
+        message.isMyMessage = self.checkIsMyMessage(message);
         self.messages.push(message);
         riseMessageRecived(message);
     }
+
+    this.checkIsMyMessage = function (msg) {
+        return (self.clientId != msg.fromId)
+    }
+
+    this.scrollDown = function () {
+        setTimeout(function () {
+            var d = $('#' + self.elementId);
+            d.scrollTop(d.prop("scrollHeight"));
+        }, 0);
+    };
 }
 
 
@@ -45,6 +56,7 @@ Models.OnlineUser = function (user) {
     this.id = user.Id;
     this.nickName = user.NickName;
     this.age = user.Age;
+    this.connected = user.Connected;
 
     this.update = function (_user) {
         if (!_user) {
@@ -60,7 +72,8 @@ Models.OnlineUser = function (user) {
         return {
             Id: self.id,
             NickName: self.nickName,
-            Age: self.age
+            Age: self.age,
+            Connected: self.connected
         };
     };
 }
@@ -72,9 +85,11 @@ const Defaults = {
     }),
 }
 
-Models.Message = function (fromId, toId, content) {
+Models.Message = function (message) {
+    this.id = message.Id;
+    this.createdOn = new Date(message.MessageSentOn);
     this.isMyMessage = undefined;
-    this.fromId = fromId;
-    this.toId = toId;
-    this.content = content;
+    this.fromId = message.From;
+    this.toId = message.To;
+    this.content = message.Content;
 }

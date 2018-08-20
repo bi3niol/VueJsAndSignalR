@@ -14,17 +14,17 @@ function Client(myUser) {
                     isLogged: false,
                     name: "test app",
                     loggedUser: Defaults.OnlineUser,
-                    usersOnline: [],
+                    appUsers: [],
                     openedWindows: [],
                     chatWindows: [],
                 };
             },
             template: "#App-tmp",
             methods: {
-                closeWindow: function(id){
+                closeWindow: function (id) {
                     this.openedWindows = this.openedWindows.where(function (w) {
                         return w.clientId != id;
-                    }); 
+                    });
                 },
                 openWindow: function (user) {
                     console.log(user);
@@ -38,12 +38,15 @@ function Client(myUser) {
                         return;
                     }
                     win = new Models.Window(user, this.loggedUser);
-                    this.openedWindows.push(win);
-                    this.chatWindows.push(win);
-                    this.$forceUpdate();
+                    var self = this;
+                    Common.getMessagesOfConversation(server,win.clientId,win);
+
+                    self.openedWindows.push(win);
+                    self.chatWindows.push(win);
+                    self.$forceUpdate();
                 },
                 updateUser: function (user) {
-                    var _user = this.usersOnline.firstOrDefault((u) => u.id == user.Id);
+                    var _user = this.appUsers.firstOrDefault((u) => u.id == user.Id);
                     if (_user) {
                         _user.update(user);
                     }
@@ -64,7 +67,7 @@ function Client(myUser) {
                             onlineUsers.forEach(function (u) {
                                 users.push(new Models.OnlineUser(u));
                             });
-                            vm.usersOnline = users;
+                            vm.appUsers = users;
                         }
                         else {
                             alert("Wprowadz poprawne dane");
@@ -76,7 +79,7 @@ function Client(myUser) {
     }
 
     function getUserById(id) {
-        return self.Vue.usersOnline.firstOrDefault(function (u) {
+        return self.Vue.appUsers.firstOrDefault(function (u) {
             return u.id == id;
         }, null);
     }
@@ -95,9 +98,12 @@ function Client(myUser) {
     //prepare client methods
     var chatHub = $.connection.chatHub;
 
-    chatHub.client.reciveMessage = function (from, to, content) {
-        var msg = new Models.Message(from, to, content);
-        var usr = getUserById(from);
+    chatHub.client.receiveMessage = function (message) {
+        var msg = new Models.Message(message);
+        var usr = getUserById(message.From);
+        if (!usr) {
+            usr = getUserById(message.To);
+        }
         if (usr) {
             self.Vue.openWindow(usr);
             win = getOpenedWindowByUserId(usr.id);
@@ -105,21 +111,18 @@ function Client(myUser) {
         }
     }
 
-    chatHub.client.newUser = function (userdata) {
-        var user = new Models.OnlineUser(userdata);
-        self.Vue.usersOnline.push(user);
-    };
+    chatHub.client.userConnectedStateChanged = function (userId, state) {
+        var user = self.Vue.appUsers.firstOrDefault(function (u) {
+            return u.id == userId;
+        }, null);
+        if (user) {
+            user.connected = state;
+        }
+    }
+
     chatHub.client.userUpdated = function (user) {
         self.Vue.updateUser(user);
     }
-    chatHub.client.userLeft = function (id) {
-        self.Vue.usersOnline = self.Vue.usersOnline.filter(function (v) {
-            return v.id != id;
-        });
-        self.Vue.chatWindows = self.Vue.chatWindows.filter(function (w) {
-            return w.clientId != id;
-        });
-    };
 
     //Load templates
     function onReady() {
@@ -129,11 +132,11 @@ function Client(myUser) {
             $(window).on("unload", function (e) {
                 self.Vue.leaveChat();
             });
-            $(window).on("beforeunload", function (e) {
-                var msg = "Napewno chcesz zamknąć stronę?";
-                e.returnValue = msg;
-                return msg;
-            });
+            //$(window).on("beforeunload", function (e) {
+            //    var msg = "Napewno chcesz zamknąć stronę?";
+            //    e.returnValue = msg;
+            //    return msg;
+            //});
             if (self.doneCallBack) {
                 self.doneCallBack(self.Vue);
             }

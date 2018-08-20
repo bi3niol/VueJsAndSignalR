@@ -7,9 +7,6 @@ Vue.component("client-message", {
     },
 
     computed: {
-        messageType: function () {
-            return this.message.isMyMessage ? "my-message" : "other-message";
-        },
         classes: function() {
             var content = this.message.isMyMessage ? "my-message" : "other-message";
             return {
@@ -28,8 +25,10 @@ Vue.component("chat-site", {
             var windows = this.windows;
             windows.forEach(function (v, i) {
                 v.isActive = v.clientId == id;
+                if (v.isActive) {
+                    v.scrollDown();
+                }
             });
-            //this.$forceUpdate();
         }
     }
 });
@@ -47,8 +46,20 @@ Vue.component("chat-box", {
             this.server.send(this.window.clientId, message);
         }
     },
+    updated() {
+        //var self = this;
+        //this.$nextTick(function () {
+        //    var d = $('#' + self.window.elementId);
+        //    d.scrollTop(d.prop("scrollHeight"));
+        //});
+    },
     mounted() {
         var self = this;
+        $('#' + self.window.elementId).on('scroll', function (e) {
+            if (e.target.scrollTop == 0) {
+                Common.getMessagesOfConversation(self.server, self.window.clientId, self.window);
+            }
+        });
         this.window.addOnMessegeRecived(function (msg) {
             self.$nextTick(function () {
                 var d = $('#' + self.window.elementId);
@@ -81,7 +92,10 @@ Vue.component("users-online", {
     props: ["users"],
     computed: {
         count: function () {
-            return this.users.length;
+            if (this.users) {
+                return this.users.filter(u=>u.connected).length;
+            }
+            return 0;
         }
     }
 })

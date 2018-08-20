@@ -40,7 +40,7 @@
         <div class="container-fluid text-center">
             <div class="row content">
                 <div class="col-sm-2 sidenav">
-                    <users-online :users="usersOnline" v-on:openwindow="openWindow($event)"></users-online>
+                    <users-online :users="appUsers" v-on:openwindow="openWindow($event)"></users-online>
                 </div>
                 <div class="col-sm-8 text-left">
                     <chat-site v-on:tabdblclick="closeWindow($event)" :server="hubServer" :windows="openedWindows"></chat-site>

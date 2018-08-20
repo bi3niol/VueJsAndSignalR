@@ -5,6 +5,10 @@ VisualStudioVersion = 15.0.27703.2042
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR.WebServer", "SignalR.WebServer\SignalR.WebServer.csproj", "{808E8214-645B-4569-BFB7-2449922B3ACC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR.ChatStorage", "SignalR.ChatStorage\SignalR.ChatStorage.csproj", "{2F833E77-42DC-4667-8F06-C550F4A778BF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalR.TestApp", "SignalR.TestApp\SignalR.TestApp.csproj", "{3195A491-C0A3-4BA7-8541-E6121EAAC92B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{808E8214-645B-4569-BFB7-2449922B3ACC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{808E8214-645B-4569-BFB7-2449922B3ACC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{808E8214-645B-4569-BFB7-2449922B3ACC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F833E77-42DC-4667-8F06-C550F4A778BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F833E77-42DC-4667-8F06-C550F4A778BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F833E77-42DC-4667-8F06-C550F4A778BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F833E77-42DC-4667-8F06-C550F4A778BF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3195A491-C0A3-4BA7-8541-E6121EAAC92B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3195A491-C0A3-4BA7-8541-E6121EAAC92B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3195A491-C0A3-4BA7-8541-E6121EAAC92B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3195A491-C0A3-4BA7-8541-E6121EAAC92B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

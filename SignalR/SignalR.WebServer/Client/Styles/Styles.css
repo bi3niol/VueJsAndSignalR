@@ -28,3 +28,11 @@
 .messages-site{
     overflow-y:scroll;
 }
+
+.online{
+    background-color:#94ed5e !important;
+}
+
+.offline {
+    background-color: #f35252 !important;
+}

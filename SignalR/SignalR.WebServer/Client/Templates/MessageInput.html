@@ -1,6 +1,6 @@
 ﻿<template id="message-input">
     <form v-on:submit="send" class="form-inline">
-        <textarea multiple type="text" rows="4" v-html="message" v-model="message"/>
+        <input type="text" rows="4" v-html="message" v-model="message"/>
         <button class="btn-primary" type="submit">Wyślij</button>
     </form>
 </template>
