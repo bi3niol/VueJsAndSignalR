@@ -40,6 +40,7 @@ function Client(myUser) {
                     win = new Models.Window(user, this.loggedUser);
                     this.openedWindows.push(win);
                     this.chatWindows.push(win);
+                    this.$forceUpdate();
                 },
                 updateUser: function (user) {
                     var _user = this.usersOnline.firstOrDefault((u) => u.id == user.Id);

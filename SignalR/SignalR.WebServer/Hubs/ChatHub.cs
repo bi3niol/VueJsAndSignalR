@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Hubs;
@@ -20,7 +21,13 @@ namespace SignalR.WebServer.Hubs
         }
         public void Send(string to, string content)
         {
-            Clients.Others.reciveMessage(Context.ConnectionId, to, content);
+            Clients.Others.receiveMessage(Context.ConnectionId, to, content);
+        }
+
+        public override Task OnDisconnected(bool stopCalled)
+        {
+            this.Leave();
+            return base.OnDisconnected(stopCalled);
         }
 
         public UserConnection Update(UserConnection userData)

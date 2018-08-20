@@ -25,7 +25,7 @@ Models.Window = function (user, loggedUser) {
         if (typeof (callBack) != 'function') {
             throw "Argument exception : callBack must be a function";
         }
-        if (onMessageRecived.indexOf(callBack) != -1) {
+        if (onMessageRecived.indexOf(callBack) == -1) {
             onMessageRecived.push(callBack);
         }
     }

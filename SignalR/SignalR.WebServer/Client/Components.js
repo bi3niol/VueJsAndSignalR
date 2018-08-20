@@ -29,7 +29,7 @@ Vue.component("chat-site", {
             windows.forEach(function (v, i) {
                 v.isActive = v.clientId == id;
             });
-            this.$forceUpdate();
+            //this.$forceUpdate();
         }
     }
 });
@@ -50,7 +50,10 @@ Vue.component("chat-box", {
     mounted() {
         var self = this;
         this.window.addOnMessegeRecived(function (msg) {
-            // self.$forceUpdate();
+            self.$nextTick(function () {
+                var d = $('#' + self.window.elementId);
+                d.scrollTop(d.prop("scrollHeight"));
+            });
         });
     }
 });
@@ -98,7 +101,11 @@ Vue.component("message-input", {
         };
     },
     methods: {
-        send() {
+        send(e) {
+            e.preventDefault();
+            if (this.message == "") {
+                return;
+            }
             this.$emit("sentmessage", this.message);
             this.message = "";
         }
