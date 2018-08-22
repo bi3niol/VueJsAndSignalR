@@ -1,5 +1,5 @@
 ﻿<template id="online-user">
-    <li v-on:dblclick="$emit('openwindow',user)" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+    <li v-on:dblclick="$emit('openwindow',{name:user.nickName, id:user.id})" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
         {{user.nickName}}
         <span class="badge badge-pill" :class="{'online': user.connected, 'offline': !user.connected}">{{user.age}}</span>
     </li>

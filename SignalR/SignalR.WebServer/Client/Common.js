@@ -1,12 +1,13 @@
 ﻿if (typeof (Common) == 'undefined') {
     Common = {};
 }
-Common.getMessagesOfConversation = function (server, clientId, win) {
+
+Common.getMessagesOfConversation = function (server, windowId, win, isgroup) {
     var msgId = "";
     if (win.messages.length > 0) {
         msgId = win.messages[0].id;
     }
-    server.getMessagesOfConversation(clientId, msgId).done(function (res) {
+    server.getMessagesOfConversation(windowId, msgId, isgroup).done(function (res) {
         var list = [];
 
         res.forEach(function (e) {
@@ -18,3 +19,9 @@ Common.getMessagesOfConversation = function (server, clientId, win) {
         win.messages = [...list.reverse(), ...win.messages];
     });
 }
+
+Common.Beep = (function () {
+    var snd = new Audio('Client/filling-your-inbox.ogg');
+    snd.volume = 0.7;
+        return function() { snd.play(); }
+})();

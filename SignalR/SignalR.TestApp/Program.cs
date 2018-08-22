@@ -12,7 +12,7 @@ namespace SignalR.TestApp
     {
         static void Main(string[] args)
         {
-            AccountService service = new AccountService("SignalRChatDB");
+            ChatService service = new ChatService("SignalRChatDB");
 
             foreach (var item in service.AccountRepository.GetAll())
             {

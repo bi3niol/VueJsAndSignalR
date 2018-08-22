@@ -10,12 +10,12 @@ using System.Threading.Tasks;
 
 namespace SignalR.ChatStorage.Services
 {
-    public class AccountService
+    public class ChatService
     {
         private IMongoDatabase mongoDB;
         public MessagesRepository MessagesRepository { get; private set; }
         public AccountsRepository AccountRepository { get; private set; }
-        public AccountService(string databaseName)
+        public ChatService(string databaseName)
         {
             var client = new MongoClient();
             mongoDB = client.GetDatabase(databaseName);

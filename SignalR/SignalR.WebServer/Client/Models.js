@@ -4,13 +4,13 @@
     }
 }
 
-Models.Window = function (user, loggedUser) {
-    console.log(typeof (user));
+Models.Window = function (name, id, loggedUser) {
     var self = this;
-    this.clientId = user.id;
-    this.onlineUser = user;
+
+    this.windowId = id;
+    this.name = name;
     this.owner = loggedUser;
-    this.elementId = "window-" + user.id;
+    this.elementId = "window-" + id;
     this.isActive = false;
     this.messages = [];
 
@@ -30,16 +30,19 @@ Models.Window = function (user, loggedUser) {
         }
     }
     this.addMessage = function (message) {
-        if (message.fromId != self.clientId && message.toId != self.clientId) {
+        if ((message.groupId && message.groupId != self.windowId) || (message.fromId != self.windowId && message.toId != self.windowId)) {
             return;
         }
         message.isMyMessage = self.checkIsMyMessage(message);
+        if (!message.isMyMessage) {
+            Common.Beep();
+        }
         self.messages.push(message);
         riseMessageRecived(message);
     }
 
     this.checkIsMyMessage = function (msg) {
-        return (self.clientId != msg.fromId)
+        return (self.owner.id == msg.fromId)
     }
 
     this.scrollDown = function () {
@@ -53,6 +56,7 @@ Models.Window = function (user, loggedUser) {
 
 Models.OnlineUser = function (user) {
     var self = this;
+
     this.id = user.Id;
     this.nickName = user.NickName;
     this.age = user.Age;
@@ -89,6 +93,7 @@ Models.Message = function (message) {
     this.id = message.Id;
     this.createdOn = new Date(message.MessageSentOn);
     this.isMyMessage = undefined;
+    this.groupId = message.GroupId;
     this.fromId = message.From;
     this.toId = message.To;
     this.content = message.Content;

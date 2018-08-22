@@ -17,16 +17,17 @@ namespace SignalR.WebServer.Hubs
     [HubName("chatHub")]
     public class ChatHub : Hub
     {
-        private static ConcurrentDictionary<string, Account> ConnectedUsers = new ConcurrentDictionary<string, Account>();
+        private static ConcurrentDictionary<string, Account> ConnectionToAccount = new ConcurrentDictionary<string, Account>();
+        private static ConcurrentDictionary<ObjectId, string> ObjIdToConnectionId = new ConcurrentDictionary<ObjectId, string>();
 
-        private AccountService _accountService;
-        private AccountService AccountService
+        private ChatService _accountService;
+        private ChatService AccountService
         {
             get
             {
                 if (_accountService != null)
                     return _accountService;
-                _accountService = new AccountService("SignalRChatDB");
+                _accountService = new ChatService("SignalRChatDB");
                 return _accountService;
             }
         }
@@ -34,15 +35,19 @@ namespace SignalR.WebServer.Hubs
         public void Send(string to, string content)
         {
             var id = ObjectId.Parse(to);
-            var message = AccountService.AddMessage(ConnectedUsers[Context.ConnectionId].Id, id, content);
-            Clients.All.receiveMessage(message);
+            var message = AccountService.AddMessage(ConnectionToAccount[Context.ConnectionId].Id, id, content);
+
+            Clients.Caller.receiveMessage(message);
+            var targetConnectionId = "";
+            if (ObjIdToConnectionId.TryGetValue(id, out targetConnectionId))
+                Clients.Client(targetConnectionId).receiveMessage(message);
         }
 
-        public async Task<Message[]> GetMessagesOfConversation(string partnerId, string lastMessageId = null)
+        public async Task<Message[]> GetMessagesOfConversation(string partnerId, string lastMessageId, bool issGroupMessage)
         {
             ObjectId accountId = ObjectId.Parse(partnerId),
                 messageId = string.IsNullOrEmpty(lastMessageId) ? ObjectId.Empty : ObjectId.Parse(lastMessageId);
-            var res = await ConnectedUsers[Context.ConnectionId].GetMessagesOfConversation(accountId, messageId, AccountService);
+            var res = await ConnectionToAccount[Context.ConnectionId].GetMessagesOfConversation(accountId, messageId, AccountService);
             return res;
         }
 
@@ -72,31 +77,39 @@ namespace SignalR.WebServer.Hubs
             return user;
         }
 
-        public Account[] Join(Account userData)
+        public dynamic Join(Account userData)
         {
             Account user = AccountService.Login(userData.NickName);
             if (user == null)
+            {
                 user = AccountService.RegisterNewAccount(userData);
+                user.Connected = true;
+                Clients.Others.newUser(user);
+            }
 
             user.Password = null;
             user.Connected = true;
             SetConnectionState(user.Id, true);
-            ConnectedUsers[Context.ConnectionId] = user;
 
-            Account[] connectedUsers = AccountService.GetUsersExcept(user.Id);
+            ConnectionToAccount[Context.ConnectionId] = user;
+            ObjIdToConnectionId[user.Id] = Context.ConnectionId;
 
-            return connectedUsers;
+            Account[] users = AccountService.GetUsersExcept(user.Id);
+
+            return new { Identity = user, Users = users };
         }
         public void Leave()
         {
             Account account;
-            if (ConnectedUsers.TryRemove(Context.ConnectionId, out account))
+            if (ConnectionToAccount.TryRemove(Context.ConnectionId, out account))
+            {
                 SetConnectionState(account.Id, false);
+                ObjIdToConnectionId.TryRemove(account.Id, out var t);
+            }
         }
 
         private void SetConnectionState(ObjectId objectId, bool state)
         {
-
             Account update = AccountService.AccountRepository.GetEntity(objectId);
             update.Connected = state;
             AccountService.AccountRepository.Update(update);

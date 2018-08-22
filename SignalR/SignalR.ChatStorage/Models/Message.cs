@@ -15,6 +15,8 @@ namespace SignalR.ChatStorage.Models
         public DateTime MessageSentOn { get; set; }
         public string Content { get; set; }
 
+        public ObjectId? GroupId { get; set; }
+
         public ObjectId From { get; set; }
         public ObjectId To { get; set; }
     }

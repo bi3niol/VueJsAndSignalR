@@ -24,7 +24,7 @@ Vue.component("chat-site", {
         tabClick(id) {
             var windows = this.windows;
             windows.forEach(function (v, i) {
-                v.isActive = v.clientId == id;
+                v.isActive = v.windowId == id;
                 if (v.isActive) {
                     v.scrollDown();
                 }
@@ -41,9 +41,9 @@ Vue.component("chat-box", {
     },
     methods: {
         sentMessage(message) {
-            var msg = new Models.Message(this.window.owner.id, this.window.clientId, message);
-            this.window.addMessage(msg);
-            this.server.send(this.window.clientId, message);
+            //var msg = new Models.Message(this.window.owner.id, this.window.windowId, message);
+            //this.window.addMessage(msg);
+            this.server.send(this.window.windowId, message);
         }
     },
     updated() {
@@ -57,7 +57,7 @@ Vue.component("chat-box", {
         var self = this;
         $('#' + self.window.elementId).on('scroll', function (e) {
             if (e.target.scrollTop == 0) {
-                Common.getMessagesOfConversation(self.server, self.window.clientId, self.window);
+                Common.getMessagesOfConversation(self.server, self.window.windowId, self.window);
             }
         });
         this.window.addOnMessegeRecived(function (msg) {

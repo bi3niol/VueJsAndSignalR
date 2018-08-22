@@ -11,7 +11,7 @@ namespace SignalR.WebServer.Extentions
 {
     public static class AccountExtentions
     {
-        public static async Task<Message[]> GetMessagesOfConversation(this Account account, ObjectId otherAccountId, ObjectId lastLoadedMessageId, AccountService service, int pageSize = 20)
+        public static async Task<Message[]> GetMessagesOfConversation(this Account account, ObjectId otherAccountId, ObjectId lastLoadedMessageId, ChatService service, int pageSize = 20)
         {
             Message lastMessage = await service.MessagesRepository.GetEntityAsync(lastLoadedMessageId);
             DateTime lastMessageSentOn = lastMessage == null ? DateTime.Now : lastMessage.MessageSentOn;
