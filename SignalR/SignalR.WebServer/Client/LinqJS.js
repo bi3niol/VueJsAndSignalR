@@ -2,6 +2,14 @@
     return this.filter(predicate);
 };
 
+Array.prototype.select = function (selector) {
+    var res = [];
+    this.forEach(function (el) {
+        res.push(selector(el));
+    })
+    return res;
+}
+
 Array.prototype.firstOrDefault = function (predicate, _default) {
     var tmp = this.filter(predicate);
     if (tmp.length > 0) {

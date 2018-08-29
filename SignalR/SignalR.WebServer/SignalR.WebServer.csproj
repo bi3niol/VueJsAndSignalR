@@ -152,10 +152,14 @@
     <Content Include="Client\Templates\App.html" />
     <Content Include="Client\Templates\ChatBox.html" />
     <Content Include="Client\Templates\ChatSite.html" />
+    <Content Include="Client\Templates\Group.html" />
+    <Content Include="Client\Templates\GroupCreator.html" />
     <Content Include="Client\Templates\Message.html" />
     <Content Include="Client\Templates\MessageInput.html" />
     <Content Include="Client\Templates\OnlineUser.html" />
     <Content Include="Client\Templates\ProfileManager.html" />
+    <Content Include="Client\Templates\SelectMultiple.html" />
+    <Content Include="Client\Templates\UserGroups.html" />
     <Content Include="Client\Templates\UsersOnline.html" />
     <Content Include="Content\css\bootstrap-theme.css" />
     <Content Include="Content\css\bootstrap-theme.min.css" />

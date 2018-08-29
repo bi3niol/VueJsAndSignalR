@@ -1,0 +1,5 @@
+﻿<template id="group">
+    <li v-on:dblclick="$emit('openwindow',{name:group.groupName, id:group.id})" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+        {{group.groupName}}
+    </li>
+</template>

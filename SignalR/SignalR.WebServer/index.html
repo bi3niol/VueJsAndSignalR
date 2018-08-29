@@ -22,22 +22,80 @@
     <script src="Client/App.js"></script>
 
 </head>
+
 <body>
+    <style>
+        .space {
+            margin: 3px 0px !important;
+        }
+
+        .w-150px {
+            width: 150px;
+        }
+    </style>
     <div id="app">
-        <div class="modal fade" role="dialog" id="logindata">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4>Wprowadź informacje!</h4>
+        <div id="home">
+            <div class="row text-center space">
+                <div class="btn btn-success" data-toggle="modal" data-target="#logindata">
+                    Login
+                </div>
+            </div>
+            <div class="row text-center space">
+                <div class="btn btn-info" data-toggle="modal" data-target="#registerdata">
+                    Register
+                </div>
+            </div>
+            <div class="modal fade" role="dialog" id="logindata">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4>Wprowadź informacje!</h4>
+                        </div>
+                        <div class="modal-body">
+                            <div class="center-block">
+                                <div class="input-group space">
+                                    <span class="input-group-addon">Login</span>
+                                    <input class="form-control" v-model="Login" />
+                                </div>
+                                <div class="input-group space">
+                                    <span class="input-group-addon">Hasło</span>
+                                    <input class="form-control" v-model="Password" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <div class="btn btn-success w-100" v-on:click="Start">Zaloguj</div>
+                        </div>
                     </div>
-                    <div class="modal-body">
-                        <label for="name">Nick</label>
-                        <input name="name" id="name" v-model="NickName" />
-                        <label for="age">Age</label>
-                        <input type="number" v-model="Age" />
-                    </div>
-                    <div class="modal-footer">
-                        <div class="btn btn-success w-100" v-on:click="Start">Start</div>
+                </div>
+            </div>
+            <div class="modal fade" role="dialog" id="registerdata">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4>Rejestracja</h4>
+                        </div>
+                        <div class="modal-body text-center">
+                            <div class="input-group space">
+                                <span class="input-group-addon">Login</span>
+                                <input class="form-control" v-model="Login" />
+                            </div>
+                            <div class="input-group space">
+                                <span class="input-group-addon">Nick</span>
+                                <input class="form-control" v-model="NickName" />
+                            </div>
+                            <div class="input-group space">
+                                <span class="input-group-addon">Hasło</span>
+                                <input class="form-control" v-model="Password" />
+                            </div>
+                            <div class="input-group space">
+                                <span class="input-group-addon">Wiek</span>
+                                <input class="form-control" type="number" v-model="Age" />
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <div class="btn btn-success w-100" v-on:click="Register">Rejestruj</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -46,37 +104,72 @@
     <div id="templates">
     </div>
     <script>
-        var Test = [1, 2, 3];
         var myVue = null;
-        setTimeout(function () {
-            $("#logindata").modal("show");
-        }, 10);
         (function () {
-            new Vue({
-                el: "#logindata",
-                data: {
-                    NickName: "",
-                    Age: 0,
-                },
-                methods: {
-                    getUser() {
-                        return {
-                            NickName: this.NickName,
-                            Age: this.Age
+            var chatHub = $.connection.chatHub;
+            var client = new Client(chatHub);
+            client.done(function () {
+                $.connection.hub.start().done(function () {
+                    new Vue({
+                        el: "#home",
+                        data: {
+                            inProgress: false,
+                            NickName: "",
+                            Password: "",
+                            Login: "",
+                            Age: 0,
+                        },
+                        methods: {
+                            getUser() {
+                                return {
+                                    NickName: this.NickName,
+                                    Password: this.Password,
+                                    Login: this.Login,
+                                    Age: this.Age
+                                }
+                            },
+                            Register() {
+                                if (!this.NickName || !this.Login || !this.Password) {
+                                    alert("Wprowadź wszystkie dane!");
+                                    return;
+                                }
+                                var self = this;
+                                self.inProgress = true;
+                                chatHub.server.register(this.getUser()).done(function (res) {
+                                    self.inProgress = false;
+                                    if (res == "OK") {
+                                        $("#registerdata").modal("hide");
+                                        self.Start();
+                                    } else if (res == "InvalidModel") {
+                                        alert("Wprowadź wszystkie dane.");
+                                    } else if (res == "UserExists") {
+                                        alert("Użytkownik o takim Loginie juz istnieje.");
+                                    } else {
+                                        alert("Coś poszło nie tak :O");
+                                    }
+                                });
+                            },
+                            Start() {
+                                if (!this.Login) {
+                                    alert("Wprowadź Login i Hasło!");
+                                    return;
+                                }
+                                var self = this;
+                                self.inProgress = true;
+                                chatHub.server.login(this.Login, this.Password).done(function (res) {
+                                    self.inProgress = false;
+                                    if (res.Success) {
+                                        $("#logindata").modal("hide");
+                                        client.logged(res.Identity);
+                                    } else {
+                                        alert("Wprowadź poprawne dane.");
+                                    }
+                                });
+                            }
                         }
-                    },
-                    Start() {
-                        if (!this.NickName) {
-                            alert("Wprowadź Nick!");
-                            return;
-                        }
-                        $("#logindata").modal("hide");
-                        new Client(this.getUser()).done(function (vue) {
-                            myVue = vue;
-                        });
-                    }
-                }
-            })
+                    });
+                });
+            });
         }());
     </script>
 </body>

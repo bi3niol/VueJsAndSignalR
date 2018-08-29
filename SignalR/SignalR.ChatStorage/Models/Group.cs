@@ -12,9 +12,9 @@ namespace SignalR.ChatStorage.Models
     [CollectionName("Groups")]
     public partial class Group : Entity<ObjectId>
     {
-        public ObjectId OwnerId { get; set; }
+        public ObjectId? OwnerId { get; set; }
         public string GroupName { get; set; }
 
-        public List<ObjectId> GroupUsers { get; set; }
+        public List<ObjectId> IdsOfGroupMembers { get; set; } = new List<ObjectId>();
     }
 }

@@ -1,9 +1,8 @@
 ﻿/// <reference path="linqjs.js" />
 
-function Client(myUser) {
+function Client(chatHub) {
     var self = this;
     self.doneCallBack = null;
-    console.log(myUser);
     function getVueInstance(server) {
         return new Vue({
             el: "#app",
@@ -39,11 +38,11 @@ function Client(myUser) {
                     }
                     win = new Models.Window(name, id, this.loggedUser);
                     var self = this;
-                    Common.getMessagesOfConversation(server, win.windowId, win, isGroup(id));
+                    win.isGroup = isGroup(id);
+                    Common.getMessagesOfConversation(server, win.windowId, win, win.isGroup);
 
                     self.openedWindows.push(win);
                     self.chatWindows.push(win);
-                    self.$forceUpdate();
                     return true;
                 },
                 updateUser: function (user) {
@@ -56,21 +55,28 @@ function Client(myUser) {
                 leaveChat: function () {
                     server.leave();
                 },
-                joinChat: function (userData) {
+                joinChat: function () {
                     vm = this;
                     vm.isBusy = true;
-                    server.join(userData).done(function (result) {
+                    var user = this.loggedUser.toServerUser();
+                    console.warn(user.Login);
+                    console.warn(user.Password);
+                    server.join(user.Login, user.Password).done(function (result) {
                         vm.isBusy = false;
                         if (result) {
                             vm.isLogged = true;
                             var users = [];
-                            vm.loggedUser = new Models.OnlineUser(result.Identity);
+                            var groups = [];
                             result.Users.forEach(function (u) {
                                 users.push(new Models.OnlineUser(u));
                             });
+                            result.Groups.forEach(function (g) {
+                                groups.push(new Models.Group(g));
+                            });
                             vm.appUsers = users;
+                            vm.groups = groups;
                         } else {
-                            alert("Wprowadz poprawne dane");
+                            alert("Przepraszamy, zaloguj się jeszcze raz");
                         }
                     });
                 }
@@ -79,31 +85,18 @@ function Client(myUser) {
     }
 
     function isGroup(id) {
-        return null != self.Vue.groups.firstOrDefault(function (u) {
-            return u.id == id;
-        }, null);
+        return null != getGroupById(id);
     }
+    function getCollection(collectionName) {
+        var res = self.Vue[collectionName];
+        return res;
+    }
+    var getGroupById = Common.getSearchFunction(getCollection, "groups", "id");
+    var getUserById = Common.getSearchFunction(getCollection, "appUsers", "id", true);
+    var getChatWindowById = Common.getSearchFunction(getCollection, "chatWindows", "windowId", true);
+    var getOpenedWindowById = Common.getSearchFunction(getCollection, "openedWindows", "windowId");
 
-    function getUserById(id) {
-        return self.Vue.appUsers.firstOrDefault(function (g) {
-            return g.id == id;
-        }, null);
-    }
-
-    function getChatWindowById(id) {
-        return self.Vue.chatWindows.firstOrDefault(function (w) {
-            return w.windowId == id;
-        }, null);
-    }
-
-    function getOpenedWindowById(id) {
-        return self.Vue.openedWindows.firstOrDefault(function (w) {
-            return w.windowId == id;
-        }, null);
-    }
     //prepare client methods
-    var chatHub = $.connection.chatHub;
-
     chatHub.client.receiveMessage = function (message) {
         var msg = new Models.Message(message);
         var nameprop = "";
@@ -124,8 +117,15 @@ function Client(myUser) {
             win = getOpenedWindowById(_ref.id);
             if (!retivedMessage) {
                 win.addMessage(msg);
+            } else {
+                Common.Beep();
             }
         }
+    }
+
+    chatHub.client.newGroup = function (group) {
+        var g = new Models.Group(group);
+        self.Vue.groups.push(g);
     }
 
     chatHub.client.newUser = function (userdata) {
@@ -146,31 +146,44 @@ function Client(myUser) {
         self.Vue.updateUser(user);
     }
 
-    //Load templates
-    function onReady() {
-        $.connection.hub.start().done(function () {
-            self.Vue = getVueInstance(chatHub.server);
-            self.Vue.joinChat(myUser);
-            $(window).on("unload", function (e) {
-                self.Vue.leaveChat();
-            });
-            //$(window).on("beforeunload", function (e) {
-            //    var msg = "Napewno chcesz zamknąć stronę?";
-            //    e.returnValue = msg;
-            //    return msg;
-            //});
-            if (self.doneCallBack) {
-                self.doneCallBack(self.Vue);
-            }
+    function logged(identity) {
+        self.Vue = getVueInstance(chatHub.server);
+        self.Vue.loggedUser = new Models.OnlineUser(identity);
+        self.Vue.joinChat();
+        $(window).on("unload", function (e) {
+            self.Vue.leaveChat();
         });
+    }
+
+    //Load templates
+    window.GetAppInstance = function (context) {
+        var parent = context.$parent;
+        if (!parent) {
+            return context;
+        }
+        while (parent.$parent) {
+            parent = parent.$parent;
+        }
+        return parent;
     };
+
+    function onReady() {
+        if (self.doneCallBack) {
+            self.doneCallBack();
+        }
+    };
+
     (function (readyCallBack) {
         const prefix = "/Client/Templates/"
         var templates = ["App.html",
             "Message.html",
             "ChatSite.html",
             "ChatBox.html",
+            "Group.html",
+            "UserGroups.html",
+            "GroupCreator.html",
             "OnlineUser.html",
+            "SelectMultiple.html",
             "ProfileManager.html",
             "UsersOnline.html",
             "MessageInput.html"];
@@ -191,6 +204,10 @@ function Client(myUser) {
     }(onReady));
 
     return {
+        logged: logged,
+        getVueInstance: function () {
+            return self.Vue;
+        },
         done: function (callBack) {
             self.doneCallBack = callBack;
         }

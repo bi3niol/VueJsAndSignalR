@@ -1,5 +1,6 @@
 ﻿<template id="message">
         <div :class="classes.box">
+            {{message.fromName}}
             <div :class="classes.content">
                 <span v-html="message.content"></span>
             </div>

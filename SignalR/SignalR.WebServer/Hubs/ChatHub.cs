@@ -21,7 +21,7 @@ namespace SignalR.WebServer.Hubs
         private static ConcurrentDictionary<ObjectId, string> ObjIdToConnectionId = new ConcurrentDictionary<ObjectId, string>();
 
         private ChatService _accountService;
-        private ChatService AccountService
+        private ChatService chatService
         {
             get
             {
@@ -32,22 +32,36 @@ namespace SignalR.WebServer.Hubs
             }
         }
 
-        public void Send(string to, string content)
+        public void Send(string to, string content, bool isGroupMessage = false)
         {
             var id = ObjectId.Parse(to);
-            var message = AccountService.AddMessage(ConnectionToAccount[Context.ConnectionId].Id, id, content);
+            var message = chatService.AddMessage(ConnectionToAccount[Context.ConnectionId].NickName,
+                ConnectionToAccount[Context.ConnectionId].Id,
+                id,
+                content, 
+                isGroupMessage);
 
-            Clients.Caller.receiveMessage(message);
-            var targetConnectionId = "";
-            if (ObjIdToConnectionId.TryGetValue(id, out targetConnectionId))
-                Clients.Client(targetConnectionId).receiveMessage(message);
+            foreach (var _id in GetTargetUsers(message))
+            {
+                var targetConnectionId = "";
+                if (ObjIdToConnectionId.TryGetValue(_id, out targetConnectionId))
+                    Clients.Client(targetConnectionId)?.receiveMessage(message);
+            }
         }
 
-        public async Task<Message[]> GetMessagesOfConversation(string partnerId, string lastMessageId, bool issGroupMessage)
+        private IEnumerable<ObjectId> GetTargetUsers(Message message)
+        {
+            if (message.GroupId == null)
+                return new[] { message.From, message.To };
+            IEnumerable<ObjectId> usersIds = chatService.GetUsersOfGroup(message.GroupId);
+            return usersIds;
+        }
+
+        public async Task<Message[]> GetMessagesOfConversation(string partnerId, string lastMessageId, bool isGroupMessage)
         {
             ObjectId accountId = ObjectId.Parse(partnerId),
                 messageId = string.IsNullOrEmpty(lastMessageId) ? ObjectId.Empty : ObjectId.Parse(lastMessageId);
-            var res = await ConnectionToAccount[Context.ConnectionId].GetMessagesOfConversation(accountId, messageId, AccountService);
+            var res = await ConnectionToAccount[Context.ConnectionId].GetMessagesOfConversation(accountId, messageId, chatService, isGroupMessage);
             return res;
         }
 
@@ -59,44 +73,85 @@ namespace SignalR.WebServer.Hubs
 
         public Account Update(Account account)
         {
+            if (ConnectionToAccount[Context.ConnectionId].Id != account.Id)
+                return null;
+            account.Connected = true;
             Account user = account;
-
-            //if (ConnectedUsers.TryGetValue(Context.ConnectionId, out user))
-            //{
-            //    ConnectedUsers.TryUpdate(Context.ConnectionId, new Account()
-            //    {
-            //        Age = userData.Age,
-            //        Id = Context.ConnectionId,
-            //        NickName = userData.NickName
-            //    }, user);
-
-            //    ConnectedUsers.TryGetValue(Context.ConnectionId, out user);
-            //    Clients.Others.userUpdated(user);
-            //}
-
-            return user;
-        }
-
-        public dynamic Join(Account userData)
-        {
-            Account user = AccountService.Login(userData.NickName);
-            if (user == null)
+            Account res = chatService.UpdateUser(account);
+            if (ConnectionToAccount.TryGetValue(Context.ConnectionId, out user))
             {
-                user = AccountService.RegisterNewAccount(userData);
-                user.Connected = true;
-                Clients.Others.newUser(user);
+                ConnectionToAccount.TryUpdate(Context.ConnectionId, new Account()
+                {
+                    Age = res.Age,
+                    Id = res.Id,
+                    NickName = res.NickName,
+                    Connected = true
+                }, user);
+
+                ConnectionToAccount.TryGetValue(Context.ConnectionId, out user);
+                Clients.Others.userUpdated(user);
             }
 
+            return res;
+        }
+
+        public bool CreateGroup(string name, string[] membersIds)
+        {
+            var ownerId = ConnectionToAccount[Context.ConnectionId].Id;
+            Group group = new Group()
+            {
+                OwnerId = ownerId,
+                GroupName = name,
+                IdsOfGroupMembers = membersIds.Select(id=>ObjectId.Parse(id)).ToList()
+            };
+            group.IdsOfGroupMembers.Add(ownerId);
+            group = chatService.GroupsRepository.Add(group);
+            foreach (var _id in group.IdsOfGroupMembers)
+            {
+                var targetConnectionId = "";
+                if (ObjIdToConnectionId.TryGetValue(_id, out targetConnectionId))
+                    Clients.Client(targetConnectionId)?.newGroup(group);
+            }
+            return true;
+        }
+
+        public string Register(Account account)
+        {
+            Account user;
+            string res = chatService.RegisterNewAccount(account, out user);
+            if ("OK"==res)
+            {
+                user.Password = null;
+                user.Login = null;
+                Clients.Others.newUser(user);
+            }
+            return res;
+        }
+
+        public dynamic Login(string login, string password)
+        {
+            var user = chatService.Login(login, password);
+            return new
+            {
+                Success = user != null,
+                Identity = user
+            };
+        }
+
+        public dynamic Join(string login, string password)
+        {
+            Account user=chatService.Login(login, password);
             user.Password = null;
+            user.Login = null;
             user.Connected = true;
             SetConnectionState(user.Id, true);
 
             ConnectionToAccount[Context.ConnectionId] = user;
             ObjIdToConnectionId[user.Id] = Context.ConnectionId;
 
-            Account[] users = AccountService.GetUsersExcept(user.Id);
+            Account[] users = chatService.GetUsersExcept(user.Id);
 
-            return new { Identity = user, Users = users };
+            return new { Users = users, Groups = chatService.GetUserGroups(user.Id) };
         }
         public void Leave()
         {
@@ -110,9 +165,9 @@ namespace SignalR.WebServer.Hubs
 
         private void SetConnectionState(ObjectId objectId, bool state)
         {
-            Account update = AccountService.AccountRepository.GetEntity(objectId);
+            Account update = chatService.AccountRepository.GetEntity(objectId);
             update.Connected = state;
-            AccountService.AccountRepository.Update(update);
+            chatService.AccountRepository.Update(update);
 
             Clients.All.userConnectedStateChanged(objectId, state);
         }

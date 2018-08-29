@@ -1,0 +1,10 @@
+﻿<template id="user-groups">
+    <div>
+        <div class="row">
+            Grupy
+        </div>
+        <ul class="list-group">
+            <li is="group" v-on:openwindow="$emit('openwindow',$event)" :group="group" v-for="group in groups"></li>
+        </ul>
+    </div>
+</template>

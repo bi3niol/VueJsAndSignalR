@@ -1,0 +1,38 @@
+﻿<template id="select-multiple">
+    <div class="dropdown">
+        <span :id="modalGuid" data-toggle="dropdown" v-on:click="openSelector">Wybierz uczestników</span>
+        <div class="dropdown-menu foreground row" v-on:click="function(e) {e.preventDefault();}" :aria-labelledby="modalGuid">
+            <div class="col-sm-12">
+                <div class="input-group w-100">
+                    <input type="text" v-model="filterVal" class="form-control w-100" placeholder="Szukaj..." aria-label="Szukaj...">
+                </div>
+                <div class="divider"></div>
+                <div class="row pre-scrollable" style="padding-top:10px;padding-bottom:10px;">
+                    <div class="selectable-item" v-on:click="function(e){opt.selected=!opt.selected; e.stopPropagation();}" v-for="opt in selectableOptionsFiltered">
+                        <span style="color:green" class="glyphicon glyphicon-ok-sign" v-if="opt.selected"></span>
+                        <span v-else style="color:#a0a0a0" class="glyphicon glyphicon-ok-circle"></span>
+                        {{opt.label}}
+                    </div>
+                </div>
+                <div class="divider"></div>
+                <div class="text-center w-100">
+                    <div class="btn btn-success" v-on:click="confirm">Zatwierdź</div>
+                    <div class="btn btn-warning" v-on:click="cancel">Anuluj</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+<style>
+    .selectable-item {
+        margin-left: 15px;
+        margin-right: 15px;
+        padding-bottom: 2px;
+        padding-top: 2px;
+    }
+        .selectable-item:hover {
+            box-shadow: 0px 0px 15px 2px #888888;
+            border-radius:10px;
+            font-weight:900;
+        }
+</style>

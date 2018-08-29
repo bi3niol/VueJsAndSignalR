@@ -11,15 +11,20 @@ namespace SignalR.WebServer.Extentions
 {
     public static class AccountExtentions
     {
-        public static async Task<Message[]> GetMessagesOfConversation(this Account account, ObjectId otherAccountId, ObjectId lastLoadedMessageId, ChatService service, int pageSize = 20)
+        public static async Task<Message[]> GetMessagesOfConversation(this Account account, ObjectId otherAccountId, ObjectId lastLoadedMessageId, ChatService service, bool isGroup, int pageSize = 20)
         {
             Message lastMessage = await service.MessagesRepository.GetEntityAsync(lastLoadedMessageId);
             DateTime lastMessageSentOn = lastMessage == null ? DateTime.Now : lastMessage.MessageSentOn;
 
-            return service.MessagesRepository.GetEntitiesByExpression(m =>
-            ((m.From == account.Id && m.To == otherAccountId)
-            || (m.From == otherAccountId && m.To == account.Id))
-            && m.MessageSentOn < lastMessageSentOn).OrderByDescending(m => m.MessageSentOn).Take(pageSize).ToArray();
+            IQueryable<Message> messages = service.MessagesRepository.GetEntitiesByExpression(m => m.MessageSentOn < lastMessageSentOn);
+            if (!isGroup)
+                messages = messages.Where(m =>
+                (m.From == account.Id && m.To == otherAccountId)
+                || (m.From == otherAccountId && m.To == account.Id));
+            else
+                messages = messages.Where(m => m.GroupId == otherAccountId);
+
+            return messages.OrderByDescending(m => m.MessageSentOn).Take(pageSize).ToArray();
         }
     }
 }

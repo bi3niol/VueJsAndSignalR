@@ -14,6 +14,7 @@ namespace SignalR.ChatStorage.Models
     {
         public bool Connected { get; set; }
         public string NickName { get; set; }
+        public string Login { get; set; }
         public int Age { get; set; }
         public string Password { get; set; }
     }

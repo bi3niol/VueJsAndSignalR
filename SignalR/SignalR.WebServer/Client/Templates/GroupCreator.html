@@ -1,0 +1,30 @@
+﻿<template id="group-creator">
+    <div>
+        <span style="font-size:18px;color:#66b529;" class="btn glyphicon glyphicon-plus-sign" data-toggle="modal" data-target="#add-group-modal"></span>
+        <div class="modal fade" role="dialog" id="add-group-modal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4>Tworzenie grupy</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="input-group">
+                            <span class="input-group-addon">Nazwa grupy</span>
+                            <input type="text" class="form-control" v-model="groupName">
+                            <button is="select-multiple" class="input-group-addon btn" :label-prop="'nickName'" :on-selected="usersSelected" :options="posibleMembers"></button>
+                        </div>
+                        <div v-if="hasMembers" class="input-group" style="margin-top:10px;margin-bottom:10px;">
+                            <span class="input-group-addon">Członkowie</span>
+                            <div class="w-100 form-control" style="height:auto;">
+                                <div style="margin:2px;" class="btn btn-success" v-for="member in members">{{member.nickName}}</div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-success w-100" :disabled="!createEnable" v-on:click="createGroup">Stwórz</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>

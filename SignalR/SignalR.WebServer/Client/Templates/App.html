@@ -47,6 +47,10 @@
                 </div>
                 <div class="col-sm-2 sidenav">
                     <div class="jumbotron">
+                        <group-creator :server="hubServer" :posible-members="appUsers"></group-creator>
+                        <user-groups v-on:openwindow="openWindow($event.name, $event.id)" :groups="groups"></user-groups>
+                    </div>
+                    <div class="jumbotron">
                         <profile-manager :user="loggedUser" :server="hubServer"></profile-manager>
                     </div>
                 </div>

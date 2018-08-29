@@ -61,6 +61,8 @@ Models.OnlineUser = function (user) {
     this.nickName = user.NickName;
     this.age = user.Age;
     this.connected = user.Connected;
+    this.login = user.Login;
+    this.password = user.Password;
 
     this.update = function (_user) {
         if (!_user) {
@@ -75,12 +77,23 @@ Models.OnlineUser = function (user) {
     this.toServerUser = function () {
         return {
             Id: self.id,
+            Connected: self.connected,
             NickName: self.nickName,
+            Login: self.login,
             Age: self.age,
-            Connected: self.connected
+            Password: self.password,
         };
     };
 }
+
+Models.Group = function (group) {
+    var self = this;
+    self.id = group.Id;
+    self.groupName = group.GroupName;
+    self.ownerId = group.OwnerId;
+    self.idsOfMembers = group.IdsOfGroupMembers;
+}
+
 const Defaults = {
     OnlineUser: new Models.OnlineUser({
         Id: "",
@@ -97,4 +110,5 @@ Models.Message = function (message) {
     this.fromId = message.From;
     this.toId = message.To;
     this.content = message.Content;
+    this.fromName = message.FromName;
 }

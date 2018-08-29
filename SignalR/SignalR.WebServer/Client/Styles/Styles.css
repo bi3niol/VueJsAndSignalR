@@ -2,6 +2,13 @@
     padding: 8px;
 }
 
+.foreground{
+    z-index:1060;
+    position:relative;
+}
+.w-100{
+    width:100%;
+}
 .my-message, .other-message {
     padding-left: 5px;
     padding-right: 5px;

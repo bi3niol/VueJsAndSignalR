@@ -17,6 +17,7 @@ namespace SignalR.ChatStorage.Models
 
         public ObjectId? GroupId { get; set; }
 
+        public string FromName { get; set; }
         public ObjectId From { get; set; }
         public ObjectId To { get; set; }
     }
