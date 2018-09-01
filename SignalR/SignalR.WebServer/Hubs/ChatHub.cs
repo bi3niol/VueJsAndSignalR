@@ -71,8 +71,9 @@ namespace SignalR.WebServer.Hubs
             return base.OnDisconnected(stopCalled);
         }
 
-        public Account Update(Account account)
+        public Account Update(Account account, string id)
         {
+            account.Id = ObjectId.Parse(id);
             if (ConnectionToAccount[Context.ConnectionId].Id != account.Id)
                 return null;
             account.Connected = true;

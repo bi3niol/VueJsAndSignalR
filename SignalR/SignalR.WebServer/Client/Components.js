@@ -69,8 +69,10 @@ Vue.component("profile-manager", {
     methods: {
         update() {
             var self = this;
-            var usr = JSON.stringify(this.user.toServerUser());
-            this.server.update(JSON.parse(usr)).done(function (_user) {
+            var usr = this.user.toServerUser();
+            var id = this.user.id;
+            usr.Id = undefined; //required becouse it was pass as string not Bson ObjectId
+            this.server.update(usr, id).done(function (_user) {
                 if (_user) {
                     if (self.user.update(_user)) {
                         $("#edit-profile-modal").modal("toggle");
