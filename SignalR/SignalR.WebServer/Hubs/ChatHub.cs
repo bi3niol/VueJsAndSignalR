@@ -50,9 +50,7 @@ namespace SignalR.WebServer.Hubs
 
             foreach (var _id in GetTargetUsers(message))
             {
-                var targetConnectionId = "";
-                if (ObjIdToConnectionId.TryGetValue(_id, out targetConnectionId))
-                    Clients.Client(targetConnectionId)?.receiveMessage(message);
+                Clients.Group(_id.ToString())?.receiveMessage(message);
             }
         }
 
@@ -85,9 +83,7 @@ namespace SignalR.WebServer.Hubs
             {
                 foreach (var id in chatService.GetUsersOfGroup(g.Id))
                 {
-                    string connId = "";
-                    if (ObjIdToConnectionId.TryGetValue(id, out connId))
-                        Clients.Client(connId)?.updateGroup(g);
+                    Clients.Group(id.ToString())?.updateGroup(g);
                 }
                 return true;
             }
@@ -132,9 +128,7 @@ namespace SignalR.WebServer.Hubs
             group = chatService.GroupsRepository.Add(group);
             foreach (var _id in group.IdsOfGroupMembers)
             {
-                var targetConnectionId = "";
-                if (ObjIdToConnectionId.TryGetValue(_id, out targetConnectionId))
-                    Clients.Client(targetConnectionId)?.newGroup(group);
+                Clients.Group(_id.ToString())?.newGroup(group);
             }
             return true;
         }
@@ -172,8 +166,7 @@ namespace SignalR.WebServer.Hubs
             SetConnectionState(user.Id, true);
 
             ConnectionToAccount[Context.ConnectionId] = user;
-            ObjIdToConnectionId[user.Id] = Context.ConnectionId;
-
+            Groups.Add(Context.ConnectionId, user.Id.ToString());
             Account[] users = chatService.GetUsersExcept(user.Id);
 
             return new { Users = users, Groups = chatService.GetUserGroups(user.Id) };
@@ -184,31 +177,38 @@ namespace SignalR.WebServer.Hubs
             if (ConnectionToAccount.TryRemove(Context.ConnectionId, out account))
             {
                 SetConnectionState(account.Id, false);
-                ObjIdToConnectionId.TryRemove(account.Id, out var t);
             }
         }
 
         private void SetConnectionState(ObjectId objectId, bool state) // add thred safe solution
         {
             Account update = chatService.AccountRepository.GetEntity(objectId);
-            var agent = HttpContext.Current.Request.UserAgent;
-            var ip = HttpContext.Current.Request.ServerVariables["REMOTE_ADDR"];
-
-            var connection = update.Connections?.FirstOrDefault(c => c.Agent == agent && c.UserIP == ip);
-            if (null == connection)
+            Connection connection = null;
+            if (state)//join
             {
-                connection = new Connection()
+                var agent = HttpContext.Current?.Request.UserAgent;
+                var ip = HttpContext.Current?.Request.ServerVariables["REMOTE_ADDR"];
+                connection = update.Connections?.FirstOrDefault(c => c.Agent == agent && c.UserIP == ip);
+                if (null == connection)
                 {
-                    UserIP = ip,
-                    Agent = agent,
-                    ConnectionId = Context.ConnectionId
-                };
-                if (update.Connections == null)
-                    update.Connections = new List<Connection>();
-                update.Connections.Add(connection);
+                    connection = new Connection()
+                    {
+                        UserIP = ip,
+                        Agent = agent,
+                    };
+                    if (update.Connections == null)
+                        update.Connections = new List<Connection>();
+                    update.Connections.Add(connection);
+                }
             }
+            else //leave
+            {
+                connection = update.Connections?.FirstOrDefault(c => c.ConnectionId == Context.ConnectionId);
+            }
+
             connection.Connected = state;
-            update.Connected = update.Connections.Any(c=>c.Connected);
+            connection.ConnectionId = Context.ConnectionId;
+            update.Connected = update.Connections.Any(c => c.Connected);
 
             chatService.AccountRepository.Update(update);
             Clients.All.userConnectedStateChanged(objectId, update.Connected);
