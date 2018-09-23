@@ -152,6 +152,7 @@
     <Content Include="Client\Templates\App.html" />
     <Content Include="Client\Templates\ChatBox.html" />
     <Content Include="Client\Templates\ChatSite.html" />
+    <Content Include="Client\Templates\EmojiPicker.html" />
     <Content Include="Client\Templates\Group.html" />
     <Content Include="Client\Templates\GroupCreator.html" />
     <Content Include="Client\Templates\Message.html" />
@@ -159,12 +160,16 @@
     <Content Include="Client\Templates\OnlineUser.html" />
     <Content Include="Client\Templates\ProfileManager.html" />
     <Content Include="Client\Templates\SelectMultiple.html" />
+    <Content Include="Client\Templates\SimpleFilter.html" />
     <Content Include="Client\Templates\UserGroups.html" />
     <Content Include="Client\Templates\UsersOnline.html" />
+    <Content Include="Client\VideoChatWebRTC\adapter-4.2.2.js" />
+    <Content Include="Client\VideoChatWebRTC\demo.js" />
     <Content Include="Content\css\bootstrap-theme.css" />
     <Content Include="Content\css\bootstrap-theme.min.css" />
     <Content Include="Content\css\bootstrap.css" />
     <Content Include="Content\css\bootstrap.min.css" />
+    <Content Include="Content\css\emoji.css" />
     <Content Include="Content\fonts\glyphicons-halflings-regular.svg" />
     <Content Include="index.html" />
     <Content Include="Model\ChatDataModel.Context.tt">
@@ -178,6 +183,7 @@
       <DependentUpon>ChatDataModel.edmx</DependentUpon>
       <LastGenOutput>ChatDataModel.cs</LastGenOutput>
     </Content>
+    <Content Include="php_test.php" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Scripts\esm\popper-utils.js" />
@@ -204,6 +210,15 @@
     <Content Include="Content\fonts\glyphicons-halflings-regular.woff" />
     <Content Include="Content\fonts\glyphicons-halflings-regular.woff2" />
     <Content Include="Client\filling-your-inbox.ogg" />
+    <Content Include="Client\Emoji\Activity.json" />
+    <Content Include="Client\Emoji\Flags.json" />
+    <Content Include="Client\Emoji\Food.json" />
+    <Content Include="Client\Emoji\Nature.json" />
+    <Content Include="Client\Emoji\Objects.json" />
+    <Content Include="Client\Emoji\People.json" />
+    <Content Include="Client\Emoji\Symbols.json" />
+    <Content Include="Client\Emoji\Travel.json" />
+    <Content Include="Client\Emoji\All.json" />
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
     <None Include="Scripts\jquery-3.3.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.3.1.js" />
@@ -223,7 +238,9 @@
     <Content Include="Scripts\umd\popper.min.js" />
     <Content Include="Scripts\vue.js" />
     <Content Include="Scripts\vue.min.js" />
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Extentions\AccountExtentions.cs" />

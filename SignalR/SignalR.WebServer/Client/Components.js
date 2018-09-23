@@ -67,7 +67,8 @@ Vue.component("profile-manager", {
         server: Object,
     },
     methods: {
-        update() {
+        update(event) {
+            event.preventDefault();
             var self = this;
             var usr = this.user.toServerUser();
             var id = this.user.id;
@@ -136,7 +137,23 @@ Vue.component("group-creator", {
 
 Vue.component("user-groups", {
     template: "#user-groups",
-    props: ["groups"],
+    props: ["groups", "appUsers", "hubServer"],
+    data: function () {
+        return {
+            filteredGroups: [],
+        }
+    },
+    watch: {
+        groups(newVal) {
+            this.filteredGroups = newVal;
+        }
+    },
+    methods: {
+        filterChange(res) {
+            this.filteredGroups = res;
+        }
+    }
+
 });
 
 Vue.component("group", {
@@ -144,11 +161,77 @@ Vue.component("group", {
     props: {
         group: Models.Group
     },
+
+    data: function () {
+        var root = GetAppInstance(this);
+        var canEdit = root.canEditGroup(this.group);
+        var editModel = {};
+        if (canEdit) {
+            editModel.group = this.group.copy();
+            editModel.users = root.appUsers;
+            editModel.members = [];
+            editModel.group.idsOfMembers.forEach(function (el) {
+                var user = root.getUserById(el);
+                if (user) {
+                    editModel.members.push(user);
+                }
+            });
+        }
+        return {
+            root: root,
+            editModel: editModel,
+            canEdit: canEdit,
+            idGuid: Common.Guid.newGuid(),
+        }
+    },
+
+    methods: {
+        usersSelected(users) {
+            console.info(users);
+            this.editModel.members = users;
+        },
+        updateGroup() {
+            this.editModel.group.idsOfMembers = this.editModel.members.select(function (el) { return el.id; });
+            var group = this.editModel.group.toServerModel();
+            var self = this;
+            this.root.hubServer.updateGroup(group).done(function (res) {
+                if (!res) {
+                    alert("Brak uprawnień!");
+                    return;
+                }
+                $("#" + self.idGuid).modal('hide');
+            });
+        }
+    },
+
+    computed: {
+        updateEnable() {
+            return this.editModel.group.groupName && this.editModel.members.length > 0;
+        },
+        hasMembers() {
+            return this.editModel.members.length > 0;
+        }
+    }
 });
 
 Vue.component("users-online", {
     template: "#users-online",
     props: ["users"],
+    data: function () {
+        return {
+            filteredUsers: [],
+        }
+    },
+    methods: {
+        filterChange(res) {
+            this.filteredUsers = res;
+        }
+    },
+    watch: {
+        users: function (newVal) {
+            this.filteredUsers = newVal;
+        }
+    },
     computed: {
         count: function () {
             if (this.users) {
@@ -174,6 +257,9 @@ Vue.component("message-input", {
         };
     },
     methods: {
+        addEmoji(emoji) {
+            this.message += emoji;
+        },
         send(e) {
             e.preventDefault();
             if (this.message == "") {
@@ -185,20 +271,93 @@ Vue.component("message-input", {
     }
 });
 
+const emotiPicker = "emoji-picker";
+Vue.component(emotiPicker, {
+    template: "#" + emotiPicker,
+    props: {
+        chooseEmojiCallBack: Function,
+    },
+    data: function () {
+        return {
+            emoji: []
+        };
+    },
+    mounted() {
+        var self = this;
+        $.get("/Client/Emoji/All.json", null, function (res) {
+            self.emoji = res;
+            console.log(res);
+        });
+    }
+});
+
+//Filter
+const simpleFilter = "simple-filter";
+Vue.component(simpleFilter, {
+    template: "#" + simpleFilter,
+    props: {
+        collection: Array,
+        filterProperty: String,
+        onFilterChange: Function,
+    },
+    data: function () {
+        return {
+            filterValue: "",
+            callBack: Common.debounceFunction(this.onFilterChange, 500),
+            label: "Szukaj..."
+        }
+    },
+    watch: {
+        filterValue: function (newVal) {
+            var prop = this.filterProperty;
+            var fval = this.filterValue.toLowerCase();
+            var res = this.collection.where(function (el) {
+                return el[prop].toLowerCase().includes(fval);
+            });
+            this.callBack(res);
+        }
+    }
+});
+
 //Multiselect
 const selectMultiple = "select-multiple";
-
 Vue.component(selectMultiple, {
     template: "#" + selectMultiple,
     props: {
         onSelected: Function,
         labelProp: String,
         valueProp: String,
-        options: Array
+        options: Array,
+        defaultSelection: Array
     },
 
     watch: {
         options: function (newVal) {
+            this.updateOptions();
+        }
+    },
+
+    data: function () {
+        const guid = Common.Guid.newGuid();
+        return {
+            modalGuid: guid,
+            selectableOptions: [],
+            selectableOptionsFiltered: []
+        }
+    },
+
+    mounted() {
+        this.updateOptions();
+        var self = this;
+        if (this.defaultSelection) {
+            this.selectableOptions.forEach(function (el) {
+                el.selected = self.defaultSelection.includes(el.value);
+            });
+        }
+    },
+
+    methods: {
+        updateOptions() {
             var opts = [];
             var sm = this;
             this.options.forEach(function (el) {
@@ -212,29 +371,13 @@ Vue.component(selectMultiple, {
             console.info("select-multiple watch");
             console.info(opts);
             this.selectableOptions = opts;
-        }
-    },
+            this.selectableOptionsFiltered = opts;
+        },
 
-    computed: {
-        selectableOptionsFiltered() {
-            var sm = this;
-            var fVal = sm.filterVal.toLowerCase();
-            return this.selectableOptions.where(function (el) {
-                return el.label.toLowerCase().includes(fVal);
-            });
-        }
-    },
+        filterChange(res) {
+            this.selectableOptionsFiltered = res;
+        },
 
-    data: function () {
-        const guid = Common.Guid.newGuid();
-        return {
-            modalGuid: guid,
-            selectableOptions: [],
-            filterVal: ""
-        }
-    },
-
-    methods: {
         openSelector() {
             $("#" + this.modalGuid).dropdown();
         },

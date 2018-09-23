@@ -1,6 +1,6 @@
 ﻿<template id="chat-box">
     <div>
-        <div :id="window.elementId" style="height:400px" class="bottom-shadow messages-site">
+        <div :id="window.elementId" style="height:55vh;" class="bottom-shadow messages-site">
             <client-message :message="msg" v-for="msg in window.messages"></client-message>
         </div>
         <message-input v-on:sentmessage="sentMessage($event)"></message-input>

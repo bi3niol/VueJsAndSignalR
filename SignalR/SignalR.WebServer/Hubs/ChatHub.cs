@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 using System.Web;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Hubs;
+using Microsoft.AspNet.SignalR.Transports;
 using MongoDB.Bson;
+using SignalR.ChatStorage.DTOs;
 using SignalR.ChatStorage.Models;
 using SignalR.ChatStorage.Services;
 using SignalR.WebServer.Extentions;
@@ -32,13 +34,18 @@ namespace SignalR.WebServer.Hubs
             }
         }
 
+        public void SendChatData(string data)
+        {
+            Clients.Others.videoChatData(data);
+        }
+
         public void Send(string to, string content, bool isGroupMessage = false)
         {
             var id = ObjectId.Parse(to);
             var message = chatService.AddMessage(ConnectionToAccount[Context.ConnectionId].NickName,
                 ConnectionToAccount[Context.ConnectionId].Id,
                 id,
-                content, 
+                content,
                 isGroupMessage);
 
             foreach (var _id in GetTargetUsers(message))
@@ -69,6 +76,22 @@ namespace SignalR.WebServer.Hubs
         {
             this.Leave();
             return base.OnDisconnected(stopCalled);
+        }
+
+        public bool UpdateGroup(GroupDTO group)
+        {
+            var g = group.GetEntity();
+            if (chatService.UpdateGroup(g, ConnectionToAccount[Context.ConnectionId].Id))
+            {
+                foreach (var id in chatService.GetUsersOfGroup(g.Id))
+                {
+                    string connId = "";
+                    if (ObjIdToConnectionId.TryGetValue(id, out connId))
+                        Clients.Client(connId)?.updateGroup(g);
+                }
+                return true;
+            }
+            return false;
         }
 
         public Account Update(Account account, string id)
@@ -103,7 +126,7 @@ namespace SignalR.WebServer.Hubs
             {
                 OwnerId = ownerId,
                 GroupName = name,
-                IdsOfGroupMembers = membersIds.Select(id=>ObjectId.Parse(id)).ToList()
+                IdsOfGroupMembers = membersIds.Select(id => ObjectId.Parse(id)).ToList()
             };
             group.IdsOfGroupMembers.Add(ownerId);
             group = chatService.GroupsRepository.Add(group);
@@ -120,7 +143,7 @@ namespace SignalR.WebServer.Hubs
         {
             Account user;
             string res = chatService.RegisterNewAccount(account, out user);
-            if ("OK"==res)
+            if ("OK" == res)
             {
                 user.Password = null;
                 user.Login = null;
@@ -141,9 +164,10 @@ namespace SignalR.WebServer.Hubs
 
         public dynamic Join(string login, string password)
         {
-            Account user=chatService.Login(login, password);
+            Account user = chatService.Login(login, password);
             user.Password = null;
             user.Login = null;
+            user.Connections = new List<Connection>();
             user.Connected = true;
             SetConnectionState(user.Id, true);
 
@@ -164,13 +188,30 @@ namespace SignalR.WebServer.Hubs
             }
         }
 
-        private void SetConnectionState(ObjectId objectId, bool state)
+        private void SetConnectionState(ObjectId objectId, bool state) // add thred safe solution
         {
             Account update = chatService.AccountRepository.GetEntity(objectId);
-            update.Connected = state;
-            chatService.AccountRepository.Update(update);
+            var agent = HttpContext.Current.Request.UserAgent;
+            var ip = HttpContext.Current.Request.ServerVariables["REMOTE_ADDR"];
 
-            Clients.All.userConnectedStateChanged(objectId, state);
+            var connection = update.Connections?.FirstOrDefault(c => c.Agent == agent && c.UserIP == ip);
+            if (null == connection)
+            {
+                connection = new Connection()
+                {
+                    UserIP = ip,
+                    Agent = agent,
+                    ConnectionId = Context.ConnectionId
+                };
+                if (update.Connections == null)
+                    update.Connections = new List<Connection>();
+                update.Connections.Add(connection);
+            }
+            connection.Connected = state;
+            update.Connected = update.Connections.Any(c=>c.Connected);
+
+            chatService.AccountRepository.Update(update);
+            Clients.All.userConnectedStateChanged(objectId, update.Connected);
         }
     }
 }

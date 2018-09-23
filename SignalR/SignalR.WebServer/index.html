@@ -10,11 +10,13 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>-->
     <link href="Client/Styles/Styles.css" rel="stylesheet" />
     <link href="Content/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="Content/css/emoji.css" rel="stylesheet" />
     <script src="Scripts/jquery-3.3.1.js"></script>
     <script src="Scripts/bootstrap.min.js"></script>
     <script src="Scripts/jquery.signalR-2.3.0.js"></script>
     <script src="Scripts/vue.js"></script>
     <script src="/signalr/hubs"></script>
+    <script src="Client/VideoChatWebRTC/demo.js"></script>
     <script src="Client/Common.js"></script>
     <script src="Client/LinqJS.js"></script>
     <script src="Client/Models.js"></script>
@@ -26,7 +28,7 @@
 <body>
     <style>
         .space {
-            margin: 3px 0px !important;
+            margin: 20px 0px !important;
         }
 
         .w-150px {
@@ -36,15 +38,21 @@
     <div id="app">
         <div id="home">
             <div class="row text-center space">
-                <div class="btn btn-success" data-toggle="modal" data-target="#logindata">
+                <div class="btn btn-success w-150px" data-toggle="modal" data-target="#logindata">
                     Login
                 </div>
             </div>
             <div class="row text-center space">
-                <div class="btn btn-info" data-toggle="modal" data-target="#registerdata">
+                <div class="btn btn-info w-150px" data-toggle="modal" data-target="#registerdata">
                     Register
                 </div>
             </div>
+
+            <!--<div>
+                <video autoplay class="video mine" id="rtcVideo"></video>
+                <input type="button" onclick="clickCallBack();" id="startBtn" value="start" />
+            </div>-->
+
             <div class="modal fade" role="dialog" id="logindata">
                 <div class="modal-dialog">
                     <div class="modal-content">
@@ -59,7 +67,7 @@
                                 </div>
                                 <div class="input-group space">
                                     <span class="input-group-addon">Hasło</span>
-                                    <input class="form-control" v-model="Password" />
+                                    <input class="form-control" type="password" v-model="Password" />
                                 </div>
                             </div>
                         </div>
@@ -71,32 +79,32 @@
             </div>
             <div class="modal fade" role="dialog" id="registerdata">
                 <div class="modal-dialog">
-                    <div class="modal-content">
+                    <form class="modal-content" v-on:submit="Register">
                         <div class="modal-header">
                             <h4>Rejestracja</h4>
                         </div>
                         <div class="modal-body text-center">
                             <div class="input-group space">
                                 <span class="input-group-addon">Login</span>
-                                <input class="form-control" v-model="Login" />
+                                <input class="form-control" v-model="Login" required/>
                             </div>
                             <div class="input-group space">
                                 <span class="input-group-addon">Nick</span>
-                                <input class="form-control" v-model="NickName" />
+                                <input class="form-control" v-model="NickName" required/>
                             </div>
                             <div class="input-group space">
                                 <span class="input-group-addon">Hasło</span>
-                                <input class="form-control" v-model="Password" />
+                                <input type="password" class="form-control" v-model="Password" required/>
                             </div>
                             <div class="input-group space">
                                 <span class="input-group-addon">Wiek</span>
-                                <input class="form-control" type="number" v-model="Age" />
+                                <input min="6" max="100" class="form-control" type="number" v-model="Age" required/>
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <div class="btn btn-success w-100" v-on:click="Register">Rejestruj</div>
+                            <input type="submit" class="btn btn-success w-100" value="Rejestruj" />
                         </div>
-                    </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -105,11 +113,16 @@
     </div>
     <script>
         var myVue = null;
+        var clickCallBack = function () { };
         (function () {
             var chatHub = $.connection.chatHub;
+            //var videoChat = setupVideoChat(chatHub);
+            //var videoInit = videoChat.init;
+            //clickCallBack = videoChat.onClick;
             var client = new Client(chatHub);
             client.done(function () {
                 $.connection.hub.start().done(function () {
+                    //videoInit();
                     new Vue({
                         el: "#home",
                         data: {
@@ -128,7 +141,8 @@
                                     Age: this.Age
                                 }
                             },
-                            Register() {
+                            Register(event) {
+                                event.preventDefault();
                                 if (!this.NickName || !this.Login || !this.Password) {
                                     alert("Wprowadź wszystkie dane!");
                                     return;

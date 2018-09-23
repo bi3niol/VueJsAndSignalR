@@ -3,9 +3,7 @@
         <span :id="modalGuid" data-toggle="dropdown" v-on:click="openSelector">Wybierz uczestników</span>
         <div class="dropdown-menu foreground row" v-on:click="function(e) {e.preventDefault();}" :aria-labelledby="modalGuid">
             <div class="col-sm-12">
-                <div class="input-group w-100">
-                    <input type="text" v-model="filterVal" class="form-control w-100" placeholder="Szukaj..." aria-label="Szukaj...">
-                </div>
+                <simple-filter filter-property="label" :on-filter-change="filterChange" :collection="selectableOptions"></simple-filter>
                 <div class="divider"></div>
                 <div class="row pre-scrollable" style="padding-top:10px;padding-bottom:10px;">
                     <div class="selectable-item" v-on:click="function(e){opt.selected=!opt.selected; e.stopPropagation();}" v-for="opt in selectableOptionsFiltered">

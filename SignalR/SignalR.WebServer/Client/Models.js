@@ -88,10 +88,27 @@ Models.OnlineUser = function (user) {
 
 Models.Group = function (group) {
     var self = this;
-    self.id = group.Id;
-    self.groupName = group.GroupName;
-    self.ownerId = group.OwnerId;
-    self.idsOfMembers = group.IdsOfGroupMembers;
+    self.copy = function () {
+        var res = new Models.Group(self.toServerModel());
+        res.id = self.id;
+        return res;
+    }
+    self.toServerModel = function () {
+        return {
+            Id: self.id,
+            GroupName: self.groupName,
+            OwnerId: self.ownerId,
+            IdsOfGroupMembers: self.idsOfMembers,
+        }
+    }
+    self.update = function (group) {
+        self.id = group.Id;
+        self.groupName = group.GroupName;
+        self.ownerId = group.OwnerId;
+        self.idsOfMembers = group.IdsOfGroupMembers;
+    }
+
+    self.update(group);
 }
 
 const Defaults = {

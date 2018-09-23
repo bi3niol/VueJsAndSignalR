@@ -1,0 +1,14 @@
+﻿<template id="emoji-picker">
+    <div class="container">
+        <ul class="nav nav-pills">
+            <li v-for="(val,key) in emoji">
+                <a :href="'#' + key" data-toggle="tab">{{val[0].value}}</a>
+            </li>
+        </ul>
+        <div class="tab-content clearfix">
+            <div class="tab-pane" :id="key" v-for="(val,key) in emoji">
+                <div class="emoji-item btn" v-on:click="chooseEmojiCallBack(item.value)" v-for="item in val">{{item.value}}</div>
+            </div>
+        </div>
+    </div>
+</template>

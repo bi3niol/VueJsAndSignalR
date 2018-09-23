@@ -1,8 +1,12 @@
 ﻿<template id="users-online">
-    <div>
-        <div>Użytkowników online : <b>{{count}}</b></div>
-        <ul class="list-group">
-            <li is="online-user" v-on:openwindow="$emit('openwindow',$event)" :user="user" v-for="user in users"></li>
+    <div class="box-shadow">
+        <div style="background-color:lightgray;padding:5px;">
+            Użytkowników online : <b>{{count}}</b>
+            <simple-filter filter-property="nickName" :on-filter-change="filterChange" :collection="users"></simple-filter>
+        </div>
+        <div class="divider"></div>
+        <ul class="list-group" style="max-height:60vh; overflow-y:scroll;">
+            <li is="online-user" v-on:openwindow="$emit('openwindow',$event)" :user="user" v-for="user in filteredUsers"></li>
         </ul>
     </div>
 </template>

@@ -21,6 +21,9 @@ function Client(chatHub) {
             },
             template: "#App-tmp",
             methods: {
+                canEditGroup: function (group) {
+                    return this.loggedUser.id == group.ownerId;
+                },
                 closeWindow: function (id) {
                     this.openedWindows = this.openedWindows.where(function (w) {
                         return w.windowId != id;
@@ -55,12 +58,11 @@ function Client(chatHub) {
                 leaveChat: function () {
                     server.leave();
                 },
+                getUserById: getUserById,
                 joinChat: function () {
                     vm = this;
                     vm.isBusy = true;
                     var user = this.loggedUser.toServerUser();
-                    console.warn(user.Login);
-                    console.warn(user.Password);
                     server.join(user.Login, user.Password).done(function (result) {
                         vm.isBusy = false;
                         if (result) {
@@ -123,6 +125,15 @@ function Client(chatHub) {
         }
     }
 
+    chatHub.client.updateGroup = function (group) {
+        var g = getGroupById(group.Id);
+        if (g) {
+            g.update(group);
+        } else {
+            chatHub.client.newGroup(group);
+        }
+    };
+
     chatHub.client.newGroup = function (group) {
         var g = new Models.Group(group);
         self.Vue.groups.push(g);
@@ -180,8 +191,10 @@ function Client(chatHub) {
             "ChatSite.html",
             "ChatBox.html",
             "Group.html",
+            "EmojiPicker.html",
             "UserGroups.html",
             "GroupCreator.html",
+            "SimpleFilter.html",
             "OnlineUser.html",
             "SelectMultiple.html",
             "ProfileManager.html",
@@ -202,6 +215,7 @@ function Client(chatHub) {
             });
         };
     }(onReady));
+    //----------------------------------------//
 
     return {
         logged: logged,

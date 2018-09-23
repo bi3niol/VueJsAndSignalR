@@ -1,6 +1,7 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Driver;
 using SignalR.ChatStorage.Models;
+using SignalR.ChatStorage.Processors;
 using SignalR.ChatStorage.Repos;
 using System;
 using System.Collections.Generic;
@@ -89,7 +90,7 @@ namespace SignalR.ChatStorage.Services
             message.From = from;
             message.GroupId = isGroup ? to : (ObjectId?)null;
             message.To = to;
-            message.Content = content;
+            message.Content = MessageProcessor.ProcessContent(content);
 
             return AddMessage(message);
         }
@@ -115,9 +116,20 @@ namespace SignalR.ChatStorage.Services
             {
                 a.Password = null;
                 a.Login = null;
+                a.Connections = new List<Connection>();
             });
 
             return res;
+        }
+
+        public bool UpdateGroup(Group group, ObjectId requestedUserId)
+        {
+            if (group.OwnerId != requestedUserId)
+                return false;
+            if (!group.IdsOfGroupMembers.Contains(requestedUserId))
+                group.IdsOfGroupMembers.Add(requestedUserId);
+            GroupsRepository.Update(group);
+            return true;
         }
     }
 }

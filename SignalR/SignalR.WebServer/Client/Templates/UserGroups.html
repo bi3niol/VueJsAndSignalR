@@ -1,10 +1,13 @@
 ﻿<template id="user-groups">
-    <div>
-        <div class="row">
-            Grupy
+    <div class="box-shadow">
+        <div style="background-color:lightgray;padding:5px;">
+            <div class="row">
+                <group-creator :server="hubServer" :posible-members="appUsers"></group-creator>
+            </div>
+            <simple-filter filter-property="groupName" :on-filter-change="filterChange" :collection="groups"></simple-filter>
         </div>
-        <ul class="list-group">
-            <li is="group" v-on:openwindow="$emit('openwindow',$event)" :group="group" v-for="group in groups"></li>
+        <ul class="list-group" style="max-height:35vh; overflow-y:scroll;">
+            <li is="group" v-on:openwindow="$emit('openwindow',$event)" :group="group" v-for="group in filteredGroups"></li>
         </ul>
     </div>
 </template>

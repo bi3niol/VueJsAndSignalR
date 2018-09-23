@@ -16,6 +16,32 @@ Common.Guid = function () {
     }
 }();
 
+Common.debounceFunction = function (func, delay) {
+    delay = delay || 250;
+    var checkTimeSpam = delay - delay * 0.2;
+    var lastUse = null;
+    var args = [];
+    var waiting = false;
+    var resFunc = function () {
+        lastUse = new Date();
+        args = arguments;
+        if (waiting) {
+            return;
+        }
+        waiting = true;
+        function waitFunc() {
+            var shift = new Date().getTime() - lastUse.getTime();
+            if (shift > checkTimeSpam) {
+                func(...args);
+                waiting = false;
+            } else {
+                setTimeout(waitFunc, delay);
+            }
+        }
+        waitFunc();
+    }
+    return resFunc;
+}
 
 Common.getMessagesOfConversation = function (server, windowId, win, isgroup) {
     var msgId = "";

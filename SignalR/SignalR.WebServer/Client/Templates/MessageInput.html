@@ -4,5 +4,6 @@
             <input type="text" class="form-control" rows="4" v-html="message" v-model="message" />
             <div class="btn input-group-addon" v-on:click="send">Wyślij</div>
         </div>
+        <emoji-picker :choose-emoji-call-back="addEmoji"></emoji-picker>
     </form>
 </template>
