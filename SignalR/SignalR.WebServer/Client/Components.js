@@ -279,14 +279,14 @@ Vue.component(emotiPicker, {
     },
     data: function () {
         return {
-            emoji: []
+            emoji: [],
+            keyPrefix: Common.Guid.newGuid()
         };
     },
     mounted() {
         var self = this;
         $.get("/Client/Emoji/All.json", null, function (res) {
             self.emoji = res;
-            console.log(res);
         });
     }
 });

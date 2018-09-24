@@ -2,11 +2,11 @@
     <div class="w-100">
         <ul class="nav nav-justified nav-tabs">
             <li v-for="(val,key) in emoji">
-                <a :href="'#' + key" :title="key" style="border-radius:0px; font-size:20px;" data-toggle="tab">{{val[0].value}}</a>
+                <a :href="'#' + keyPrefix + key" :title="key" style="border-radius:0px; font-size:20px;" data-toggle="tab">{{val[0].value}}</a>
             </li>
         </ul>
         <div class="tab-content clearfix">
-            <div class="tab-pane emoji-container" :id="key" v-for="(val,key) in emoji">
+            <div class="tab-pane emoji-container" :id="keyPrefix + key" v-for="(val,key) in emoji">
                 <div class="emoji-item btn" :title="item.key" v-on:click="chooseEmojiCallBack(item.value)" v-for="item in val">{{item.value}}</div>
             </div>
         </div>
