@@ -253,7 +253,8 @@ Vue.component("message-input", {
     template: "#message-input",
     data: function () {
         return {
-            message: ""
+            message: "",
+            id: Common.Guid.newGuid()
         };
     },
     methods: {
@@ -267,6 +268,9 @@ Vue.component("message-input", {
             }
             this.$emit("sentmessage", this.message);
             this.message = "";
+        },
+        focusInput() {
+            $("#" + this.id).focus();
         }
     }
 });
