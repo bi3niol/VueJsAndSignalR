@@ -31,14 +31,6 @@
     color: black;
 }
 
-.bottom-shadow {
-    box-shadow: rgba(0,0,0,0.4) 0px 6px 13px inset;
-}
-
-.box-shadow {
-    box-shadow: rgba(0,0,0,0.4) 0px 6px 13px;
-}
-
 .messages-site {
     overflow-y: scroll;
 }
@@ -52,7 +44,7 @@
 }
 
 .icon-action {
-    margin-left:20px;
+    margin-left: 20px;
 }
 
     .icon-action:hover {
@@ -79,7 +71,28 @@
     left: 0;
 }
 
-.emoji-item{
-    margin:2px 2px 2px 2px;
-    font-size: 13px;
+.emoji-item {
+    margin: 2px 2px 2px 2px;
+    font-size: 20px !important;
+}
+
+    .emoji-item:hover {
+        background-color: #d4d4d4;
+    }
+
+.emoji-container {
+    height: 15vh;
+    overflow-y: scroll;
+}
+
+.message-input {
+    background-color: ghostwhite;
+}
+
+.bottom-shadow, .emoji-container {
+    box-shadow: rgba(0,0,0,0.4) 0px 6px 13px inset;
+}
+
+.box-shadow, .message-input {
+    box-shadow: rgba(0,0,0,0.4) 0px 6px 13px;
 }

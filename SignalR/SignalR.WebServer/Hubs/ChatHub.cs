@@ -20,7 +20,6 @@ namespace SignalR.WebServer.Hubs
     public class ChatHub : Hub
     {
         private static ConcurrentDictionary<string, Account> ConnectionToAccount = new ConcurrentDictionary<string, Account>();
-        private static ConcurrentDictionary<ObjectId, string> ObjIdToConnectionId = new ConcurrentDictionary<ObjectId, string>();
 
         private ChatService _accountService;
         private ChatService chatService

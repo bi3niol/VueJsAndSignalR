@@ -1,8 +1,8 @@
 ﻿<template id="message-input">
-    <form v-on:submit="send" class="form-inline">
-        <div class="input-group">
-            <input type="text" class="form-control" rows="4" v-html="message" v-model="message" />
-            <div class="btn input-group-addon" v-on:click="send">Wyślij</div>
+    <form v-on:submit="send" class="form-inline w-100 message-input">
+        <div class="input-group w-100">
+            <input type="text" style="border-radius:0px" class="form-control" rows="4" v-html="message" v-model="message" />
+            <div style="border-radius:0px" class="btn input-group-addon" v-on:click="send">Wyślij</div>
         </div>
         <emoji-picker :choose-emoji-call-back="addEmoji"></emoji-picker>
     </form>
