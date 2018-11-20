@@ -44,6 +44,7 @@ function Client(chatHub) {
                     win.isGroup = isGroup(id);
                     Common.getMessagesOfConversation(server, win.windowId, win, win.isGroup);
 
+                    win.isUnreadMessage = true;
                     self.openedWindows.push(win);
                     self.chatWindows.push(win);
                     return true;

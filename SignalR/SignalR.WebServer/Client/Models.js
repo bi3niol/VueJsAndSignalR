@@ -13,6 +13,7 @@ Models.Window = function (name, id, loggedUser) {
     this.elementId = "window-" + id;
     this.isActive = false;
     this.messages = [];
+    this.isUnreadMessage = false;
 
     var onMessageRecived = [];
     function riseMessageRecived(message) {
@@ -33,6 +34,7 @@ Models.Window = function (name, id, loggedUser) {
         if ((message.groupId && message.groupId != self.windowId) || (message.fromId != self.windowId && message.toId != self.windowId)) {
             return;
         }
+        self.isUnreadMessage = true && !self.isActive;
         message.isMyMessage = self.checkIsMyMessage(message);
         if (!message.isMyMessage) {
             Common.Beep();

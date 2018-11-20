@@ -27,6 +27,7 @@ Vue.component("chat-site", {
                 v.isActive = v.windowId == id;
                 if (v.isActive) {
                     v.scrollDown();
+                    v.isUnreadMessage = false;
                 }
             });
         }

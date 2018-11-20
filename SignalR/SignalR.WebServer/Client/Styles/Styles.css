@@ -96,3 +96,23 @@
 .box-shadow, .message-input {
     box-shadow: rgba(0,0,0,0.4) 0px 6px 13px;
 }
+
+
+@keyframes arrived-message-animation {
+    0% {
+        background-color: initial;
+    }
+
+    50% {
+        background-color: #d3d3d3;
+    }
+
+    100% {
+        background-color: initial;
+    }
+}
+.arrived-message-animation {
+    animation-name: arrived-message-animation;
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+}

@@ -238,6 +238,7 @@
     <Content Include="Scripts\umd\popper.min.js" />
     <Content Include="Scripts\vue.js" />
     <Content Include="Scripts\vue.min.js" />
+    <Content Include="Scripts\vuex.js" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>

@@ -6,8 +6,8 @@
                    v-on:click="tabClick(window.windowId)"
                    v-on:dblclick="$emit('tabdblclick',window.windowId)"
                    data-toggle="tab"
-                   class="nav-link"
-                   :class="{'active':window.isActive}">
+                   class="nav-link chat-item"
+                   :class="{'active':window.isActive, 'arrived-message-animation':window.isUnreadMessage}">
                     {{window.name}}
                 </a>
             </li>
