@@ -219,6 +219,7 @@
     <Content Include="Client\Emoji\Symbols.json" />
     <Content Include="Client\Emoji\Travel.json" />
     <Content Include="Client\Emoji\All.json" />
+    <None Include="Properties\PublishProfiles\bi3niolsignalrvuejschat - Web Deploy.pubxml" />
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
     <None Include="Scripts\jquery-3.3.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.3.1.js" />

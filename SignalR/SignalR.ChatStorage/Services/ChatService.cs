@@ -19,9 +19,9 @@ namespace SignalR.ChatStorage.Services
         public GroupsRepository GroupsRepository { get; private set; }
         public ServerTasksRepository TasksRepository { get; private set; }
 
-        public ChatService(string databaseName)
+        public ChatService(string databaseName, string connectionString = null)
         {
-            var client = new MongoClient();
+            var client = string.IsNullOrWhiteSpace(connectionString) ? new MongoClient(): new MongoClient(connectionString);
             mongoDB = client.GetDatabase(databaseName);
             MessagesRepository = new MessagesRepository(mongoDB);
             AccountRepository = new AccountsRepository(mongoDB);

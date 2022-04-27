@@ -18,7 +18,7 @@ namespace Worker.TaskProcessor
         {
             logger.Info($"TaskProcessor Started...");
             var databaseName = ConfigurationManager.AppSettings["databaseName"];
-            var client = new MongoClient();
+            var client = new MongoClient(ConfigurationManager.ConnectionStrings["mongodb"].ConnectionString);
             var mongoDB = client.GetDatabase(databaseName);
             logger.Info($"Connected to {databaseName}");
 
@@ -33,7 +33,7 @@ namespace Worker.TaskProcessor
                     ITaskProcessor processor = TaskProcessorFactory.GetTaskProcessor(task.Type, mongoDB);
                     processor.ProcessTask(task);
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     logger.Error($"{e}");
                 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
@@ -28,7 +29,7 @@ namespace SignalR.WebServer.Hubs
             {
                 if (_accountService != null)
                     return _accountService;
-                _accountService = new ChatService("SignalRChatDB");
+                _accountService = new ChatService("SignalRChatDB", ConfigurationManager.ConnectionStrings["mongodb"].ConnectionString);
                 return _accountService;
             }
         }
