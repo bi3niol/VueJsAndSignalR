@@ -55,9 +55,25 @@ namespace SignalR.ChatStorage.Services
             return account;
         }
 
+        public static string CreateMD5(string input)
+        {
+
+            using (System.Security.Cryptography.MD5 md5 = System.Security.Cryptography.MD5.Create())
+            {
+                byte[] inputBytes = System.Text.Encoding.ASCII.GetBytes(input);
+                byte[] hashBytes = md5.ComputeHash(inputBytes);
+
+                return Convert.ToBase64String(hashBytes);
+            }
+        }
         public Account Login(string name, string password)
         {
-            return AccountRepository.GetEntitiesByExpression(a => a.Login == name && a.Password == password).FirstOrDefault();
+            password = CreateMD5(password);
+            var user = AccountRepository.GetEntitiesByExpression(a => a.Login == name && a.Password == password).FirstOrDefault();
+
+            user.Password = null;
+
+            return user;
         }
 
         public string RegisterNewAccount(Account account, out Account res)
@@ -70,7 +86,10 @@ namespace SignalR.ChatStorage.Services
 
             if (AccountRepository.GetEntitiesByExpression(a => a.Login == account.Login).Any())
                 return "UserExists";
+            var pw = account.Password;
+            account.Password = CreateMD5(account.Password);
             res = AccountRepository.Add(account);
+            res.Password = pw;
             return "OK";
         }
 

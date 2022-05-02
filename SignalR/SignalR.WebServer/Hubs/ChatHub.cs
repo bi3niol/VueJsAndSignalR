@@ -29,7 +29,7 @@ namespace SignalR.WebServer.Hubs
             {
                 if (_accountService != null)
                     return _accountService;
-                _accountService = new ChatService("SignalRChatDB", ConfigurationManager.ConnectionStrings["mongodb"].ConnectionString);
+                _accountService = new ChatService("SignalRChatDB", ConfigurationManager.ConnectionStrings["mongodb"]?.ConnectionString);
                 return _accountService;
             }
         }
@@ -64,9 +64,18 @@ namespace SignalR.WebServer.Hubs
 
         public async Task<Message[]> GetMessagesOfConversation(string partnerId, string lastMessageId, bool isGroupMessage)
         {
+            Message[] res = new Message[0];
+
             ObjectId accountId = ObjectId.Parse(partnerId),
                 messageId = string.IsNullOrEmpty(lastMessageId) ? ObjectId.Empty : ObjectId.Parse(lastMessageId);
-            var res = await ConnectionToAccount[Context.ConnectionId].GetMessagesOfConversation(accountId, messageId, chatService, isGroupMessage);
+
+            try
+            {
+                res = await ConnectionToAccount[Context.ConnectionId].GetMessagesOfConversation(accountId, messageId, chatService, isGroupMessage);
+            }
+            catch (Exception e)
+            { }
+
             return res;
         }
 
@@ -206,8 +215,12 @@ namespace SignalR.WebServer.Hubs
                 connection = update.Connections?.FirstOrDefault(c => c.ConnectionId == Context.ConnectionId);
             }
 
-            connection.Connected = state;
-            connection.ConnectionId = Context.ConnectionId;
+            if (connection != null)
+            {
+                connection.Connected = state;
+                connection.ConnectionId = Context.ConnectionId;
+            }
+
             update.Connected = update.Connections.Any(c => c.Connected);
 
             chatService.AccountRepository.Update(update);

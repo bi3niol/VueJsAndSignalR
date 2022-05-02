@@ -13,6 +13,10 @@ namespace SignalR.ChatStorage.Repos
     {
         public MessagesRepository(IMongoDatabase database) : base(database, true)
         {
+            var indexOptions = new CreateIndexOptions();
+            var indexKeys = Builders<Message>.IndexKeys.Descending(hamster => hamster.MessageSentOn);
+            var indexModel = new CreateIndexModel<Message>(indexKeys, indexOptions);
+            var res = DataCollection.Indexes.CreateOne(indexModel);
         }
     }
 }
