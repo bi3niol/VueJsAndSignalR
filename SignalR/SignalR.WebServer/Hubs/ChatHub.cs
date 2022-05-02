@@ -21,7 +21,6 @@ namespace SignalR.WebServer.Hubs
     public class ChatHub : Hub
     {
         private static ConcurrentDictionary<string, Account> ConnectionToAccount = new ConcurrentDictionary<string, Account>();
-
         private ChatService _accountService;
         private ChatService chatService
         {
@@ -180,6 +179,7 @@ namespace SignalR.WebServer.Hubs
 
             return new { Users = users, Groups = chatService.GetUserGroups(user.Id) };
         }
+
         public void Leave()
         {
             Account account;
