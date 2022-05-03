@@ -1,5 +1,6 @@
 ﻿using MongoDB.Bson;
 using SignalR.ChatStorage.Models;
+using SignalR.ChatStorage.Processors;
 using SignalR.ChatStorage.Services;
 using System;
 using System.Collections.Generic;
@@ -14,8 +15,10 @@ namespace SignalR.TestApp
     {
         static void Main(string[] args)
         {
-            Regex regex = new Regex("(:D)");
-            Console.WriteLine(regex.IsMatch(":D"));
+            var s = @"sdaw https://www.youtube.com/watch?v=LViK-9GYfWo";
+            Regex regex = new Regex(@"(http|https)://.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*)( |)", RegexOptions.Compiled);
+            var res = regex.Match(s);
+            Console.WriteLine(res.Groups[8]?.Value);
         }
     }
 }
